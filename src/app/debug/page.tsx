@@ -1,4 +1,6 @@
-﻿import { health, getTickets } from "@/lib/api";
+﻿export const dynamic = "force-dynamic";
+
+import { health, getTickets } from "@/lib/api";
 
 export default async function Page() {
   const ping = await health();
