@@ -7,14 +7,19 @@ export type Ticket = {
 };
 export type TicketInput = { title: string; description: string };
 
-/** BASE URL 構築 */
-const RAW_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? "";
-if (!RAW_BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
-const BASE = RAW_BASE.endsWith("/") ? RAW_BASE.slice(0, -1) : RAW_BASE;
+/** BASE URL を「呼び出し時」に読む */
+function getBase() {
+  const raw = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
+  // ビルド時は未定義のことがある。実行時（SWA本番/ローカル）で値が入る前提。
+  if (!raw) return ""; // ← ここでは例外を投げない
+  return raw.endsWith("/") ? raw.slice(0, -1) : raw;
+}
 
 /** 必要時のみ Function Key を付与 */
 function buildUrl(path: string) {
-  const url = new URL(path, BASE);
+  const base = getBase();
+  if (!base) throw new Error("API base URL is not set (NEXT_PUBLIC_API_BASE_URL).");
+  const url = new URL(path, base);
   const key = process.env.NEXT_PUBLIC_API_KEY?.trim();
   if (key) url.searchParams.set("code", key);
   return url.toString();
@@ -27,7 +32,7 @@ export async function health() {
   return r.json();
 }
 
-/** 一覧取得（MVPでは空配列） */
+/** 一覧取得 */
 export async function getTickets() {
   const r = await fetch(buildUrl("/api/tickets"), { cache: "no-store" });
   if (!r.ok) throw new Error(`tickets NG: ${r.status}`);
@@ -44,7 +49,7 @@ export async function getTicket(id: string): Promise<Ticket | null> {
   return r.json();
 }
 
-/** 作成（未実装時はフォールバックでダミーIDを返す） */
+/** 作成（未実装時はフォールバックでダミーID） */
 export async function createTicket(input: TicketInput): Promise<{ id: string }> {
   const r = await fetch(buildUrl("/api/tickets"), {
     method: "POST",
@@ -52,7 +57,6 @@ export async function createTicket(input: TicketInput): Promise<{ id: string }> 
     body: JSON.stringify(input),
   });
 
-  // API未実装（404/405）の間はクライアント側で仮IDを払い出して遷移できるようにする
   if (r.status === 404 || r.status === 405) {
     const fakeId = `local-${Date.now()}`;
     return { id: fakeId };

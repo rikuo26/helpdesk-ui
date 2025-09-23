@@ -1,6 +1,8 @@
 ﻿import Link from "next/link";
 import { getTickets, type Ticket } from "@/lib/api";
 
+export const dynamic = "force-dynamic";  // ← 追加：ビルド時実行を避ける
+
 function fmtJST(iso?: string) {
   if (!iso) return "";
   const d = new Date(iso);

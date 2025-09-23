@@ -1,5 +1,7 @@
 ﻿import { getTicket } from "@/lib/api";
 
+export const dynamic = "force-dynamic";  // ← 追加
+
 export default async function Page({
   params,
 }: {
