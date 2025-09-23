@@ -27,7 +27,7 @@ export default async function Page() {
       )}
 
       <div style={{ marginTop: 16 }}>
-        <a href="/tickets/new" style={{ fontWeight: 600 }}>＋ 新規作成</a>
+        <Link href="/tickets/new" style={{ fontWeight: 600 }}>＋ 新規作成</Link>
       </div>
     </main>
   );
