@@ -1,6 +1,6 @@
 ﻿import { getTicket } from "@/lib/api";
 
-export const dynamic = "force-dynamic";  // ← 追加
+export const dynamic = "force-dynamic";
 
 export default async function Page({
   params,
@@ -25,7 +25,7 @@ export default async function Page({
         </>
       ) : (
         <p style={{ opacity: 0.7, marginTop: 16 }}>
-          ※ 詳細APIが未実装か、該当IDが存在しません。
+          ※ 詳細APIが未実装か、該当IDが存在しません（簡易フォールバックでも見つかりませんでした）。
         </p>
       )}
     </main>
