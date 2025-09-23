@@ -1,15 +1,15 @@
-﻿import React from "react";
-import EditorClient from "./EditorClient";
-import { apiGet } from "@/lib/api";
-
-export const dynamic = "force-dynamic";
-
-export default async function AdminTicketDetailPage({
+﻿export default async function Page({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const data = await apiGet(`/api/tickets/${id}`);
-  return <EditorClient id={id} initial={data} />;
+
+  return (
+    <main style={{ padding: 24 }}>
+      <h1>Admin: Ticket</h1>
+      <p>ID: {id}</p>
+      <p style={{ opacity: 0.7 }}>※ 管理機能は後で実装します</p>
+    </main>
+  );
 }

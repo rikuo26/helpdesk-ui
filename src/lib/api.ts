@@ -9,94 +9,58 @@ export type TicketInput = { title: string; description: string };
 
 /** BASE URL 構築 */
 const RAW_BASE = process.env.NEXT_PUBLIC_API_BASE_URL?.trim() ?? "";
-const BASE = RAW_BASE.endsWith("/") ? RAW_BASE : `${RAW_BASE}/`;
+if (!RAW_BASE) throw new Error("NEXT_PUBLIC_API_BASE_URL is not set");
+const BASE = RAW_BASE.endsWith("/") ? RAW_BASE.slice(0, -1) : RAW_BASE;
 
+/** 必要時のみ Function Key を付与 */
 function buildUrl(path: string) {
-  const rel = path.startsWith("/") ? path.slice(1) : path;
-  const url = new URL(rel, BASE);
+  const url = new URL(path, BASE);
   const key = process.env.NEXT_PUBLIC_API_KEY?.trim();
   if (key) url.searchParams.set("code", key);
   return url.toString();
 }
 
-/** 共通ハンドラ（標準 JSON パース） */
-async function handle<T = any>(r: Response, ctx: { method: string; url: string }) {
+/** ヘルスチェック */
+export async function health() {
+  const r = await fetch(buildUrl("/api/health"), { cache: "no-store" });
+  if (!r.ok) throw new Error(`health NG: ${r.status}`);
+  return r.json();
+}
+
+/** 一覧取得（MVPでは空配列） */
+export async function getTickets() {
+  const r = await fetch(buildUrl("/api/tickets"), { cache: "no-store" });
+  if (!r.ok) throw new Error(`tickets NG: ${r.status}`);
+  return r.json() as Promise<Ticket[]>;
+}
+
+/** 単票取得（未実装時は null を返す） */
+export async function getTicket(id: string): Promise<Ticket | null> {
+  const r = await fetch(buildUrl(`/api/tickets/${encodeURIComponent(id)}`), {
+    cache: "no-store",
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) throw new Error(`ticket NG: ${r.status}`);
+  return r.json();
+}
+
+/** 作成（未実装時はフォールバックでダミーIDを返す） */
+export async function createTicket(input: TicketInput): Promise<{ id: string }> {
+  const r = await fetch(buildUrl("/api/tickets"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+
+  // API未実装（404/405）の間はクライアント側で仮IDを払い出して遷移できるようにする
+  if (r.status === 404 || r.status === 405) {
+    const fakeId = `local-${Date.now()}`;
+    return { id: fakeId };
+  }
+
   if (!r.ok) {
     const text = await r.text().catch(() => "");
-    throw new Error(`${ctx.method} ${ctx.url} NG: ${r.status} ${r.statusText}${text ? `  Body: ${text}` : ""}`);
+    throw new Error(`create NG: ${r.status} ${text}`);
   }
-  return (await r.json()) as T;
-}
-
-/** -------- 画面が期待している API 群 -------- */
-export async function health() {
-  // 一覧を呼んで 200 なら OK とみなす
-  const url = buildUrl("/api/tickets");
-  const r = await fetch(url, { cache: "no-store" });
-  return handle(r, { method: "GET", url });
-}
-
-export async function listTickets(): Promise<{ items: Ticket[] }> {
-  const url = buildUrl("/api/tickets");
-  const r = await fetch(url, { cache: "no-store" });
-  return handle<{ items: Ticket[] }>(r, { method: "GET", url });
-}
-
-export async function getTicket(id: string): Promise<Ticket> {
-  const url = buildUrl(`/api/tickets/${encodeURIComponent(id)}`);
-  const r = await fetch(url, { cache: "no-store" });
-  return handle<Ticket>(r, { method: "GET", url });
-}
-
-export async function createTicket(input: TicketInput): Promise<Ticket> {
-  const url = buildUrl("/api/tickets");
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-  return handle<Ticket>(r, { method: "POST", url });
-}
-
-export async function updateTicket(id: string, input: Partial<TicketInput>): Promise<Ticket> {
-  const url = buildUrl(`/api/tickets/${encodeURIComponent(id)}`);
-  // まず PATCH、405 なら PUT にフォールバック
-  let r = await fetch(url, {
-    method: "PATCH",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-  if (r.status === 405) {
-    r = await fetch(url, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    });
-  }
-  return handle<Ticket>(r, { method: "PATCH/PUT", url });
-}
-
-export async function deleteTicket(id: string): Promise<boolean> {
-  const url = buildUrl(`/api/tickets/${encodeURIComponent(id)}`);
-  const r = await fetch(url, { method: "DELETE" });
-  if (r.ok || r.status === 204) return true;
-  const t = await r.text().catch(() => "");
-  throw new Error(`DELETE ${url} NG: ${r.status} ${r.statusText}${t ? `  Body: ${t}` : ""}`);
-}
-
-/** 汎用 */
-export async function apiGet<T = any>(path: string): Promise<T> {
-  const url = buildUrl(path);
-  const r = await fetch(url, { cache: "no-store" });
-  return handle<T>(r, { method: "GET", url });
-}
-
-export async function apiPost<T = any>(path: string, body: any): Promise<T> {
-  const url = buildUrl(path);
-  const r = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  return handle<T>(r, { method: "POST", url });
+  return r.json();
 }
