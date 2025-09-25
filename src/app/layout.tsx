@@ -1,7 +1,6 @@
 ﻿import "./globals.css";
-import Link from "next/link";
 import { getClientPrincipalFromHeaders } from "@/lib/swaAuth";
-import { ToastContainer } from "@/components/toast";
+import Sidebar from "@/components/Sidebar";
 
 export const metadata = { title: "JR東日本アイステイションズ ヘルプデスク" };
 
@@ -11,33 +10,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="ja">
       <body className="min-h-screen bg-gray-50 text-gray-900">
-        {/* ▼ ヘッダー：明るめAzureブルー */}
+        {/* ヘッダー：明るく鮮やかなAzureブルー */}
         <header className="h-12 bg-[#0078D4] text-white flex items-center justify-between px-4 shadow-sm">
-          <div className="font-bold">JR東日本アイステイションズ ヘルプデスク</div>
-          <div className="text-sm/none opacity-90">{p?.userDetails ?? "Guest"}</div>
+          <div className="flex items-center gap-2 font-bold">
+            <div className="w-6 h-6 rounded-sm bg-white/90 text-[#0078D4] grid place-items-center text-xs font-extrabold">JIS</div>
+            <div>JR東日本アイステイションズ ヘルプデスク</div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm/none opacity-90 truncate max-w-[240px]">{p?.userDetails ?? "Guest"}</span>
+            <div className="w-7 h-7 rounded-full bg-white/90 text-[#0078D4] grid place-items-center text-xs font-bold">
+              {(p?.userDetails ?? "G").slice(0,1).toUpperCase()}
+            </div>
+          </div>
         </header>
         <div className="flex">
-          <aside className="w-60 border-r bg-white min-h-[calc(100vh-3rem)] p-3 space-y-2">
-            <NavItem href="/" label="ダッシュボード" />
-            <div className="mt-4 text-xs uppercase text-gray-500">ユーザー</div>
-            <NavItem href="/my/tickets" label="マイ問い合わせ" />
-            <div className="mt-4 text-xs uppercase text-gray-500">管理</div>
-            <NavItem href="/admin/tickets" label="チケット管理" />
-          </aside>
-          <main className="flex-1 p-6">
-            {children}
-          </main>
+          <Sidebar />
+          <main className="flex-1 p-6">{children}</main>
         </div>
-        <ToastContainer />
       </body>
     </html>
-  );
-}
-
-function NavItem({ href, label }: { href: string; label: string }) {
-  return (
-    <Link href={href} className="block rounded-xl px-3 py-2 hover:bg-[#E6F2FB]">
-      {label}
-    </Link>
   );
 }
