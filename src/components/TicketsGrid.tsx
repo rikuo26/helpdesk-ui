@@ -1,13 +1,14 @@
 ﻿"use client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/toast";
+import StatusProgress from "@/components/StatusProgress";
 
 export type Ticket = {
   id: string;
   title: string;
   description: string;
   owner?: string;
-  status?: "open" | "in_progress" | "done";
+  status?: "open" | "investigating" | "waiting" | "in_progress" | "done";
   createdAt?: string;
 };
 
@@ -39,18 +40,25 @@ export default function TicketsGrid({ scope, admin }: { scope: "recent"|"mine"|"
         <article key={t.id} className="bg-white border rounded-2xl p-4 shadow-sm">
           <div className="flex items-start justify-between">
             <h2 className="font-semibold line-clamp-1">{t.title}</h2>
-            <span className="text-xs rounded-full px-2 py-0.5 border">{t.status ?? "open"}</span>
+            <span className="text-xs rounded-full px-2 py-0.5 border text-[#0f5ea8] border-[#0f5ea8] bg-[#E6F2FB]">
+              {t.status ?? "open"}
+            </span>
           </div>
+
           <p className="mt-2 text-sm text-gray-600 line-clamp-3">{t.description}</p>
+
+          {/* 進捗バー */}
+          <StatusProgress current={t.status} />
+
           <div className="mt-3 text-xs text-gray-500">
             {(t.owner ?? "me")} / {new Date(t.createdAt ?? Date.now()).toLocaleString()}
           </div>
           <div className="mt-4 flex gap-2">
-            <a className="px-3 py-1.5 rounded-lg border hover:bg-gray-50" href={`/tickets/${t.id}`}>詳細</a>
+            <a className="px-3 py-1.5 rounded-lg border hover:bg-[#E6F2FB]" href={`/tickets/${t.id}`}>詳細</a>
             {admin && (
               <>
-                <button className="px-3 py-1.5 rounded-lg border hover:bg-gray-50" onClick={() => toast.info("アサイン（後で実装）")}>アサイン</button>
-                <button className="px-3 py-1.5 rounded-lg border hover:bg-gray-50" onClick={() => toast.success("進捗更新（後で実装）")}>進捗</button>
+                <button className="px-3 py-1.5 rounded-lg border hover:bg-[#E6F2FB]" onClick={() => toast.info("アサイン（後で実装）")}>アサイン</button>
+                <button className="px-3 py-1.5 rounded-lg border hover:bg-[#E6F2FB]" onClick={() => toast.success("進捗更新（後で実装）")}>進捗</button>
               </>
             )}
           </div>
