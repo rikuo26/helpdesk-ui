@@ -1,6 +1,8 @@
 ﻿"use client";
 import React from "react";
 
+export type StatusKey = "open"|"investigating"|"waiting"|"in_progress"|"done";
+
 /** 表示順（左→右） */
 const STEPS: { key: StatusKey; label: string }[] = [
   { key: "open",           label: "受付" },
@@ -9,8 +11,6 @@ const STEPS: { key: StatusKey; label: string }[] = [
   { key: "in_progress",    label: "対応中" },
   { key: "done",           label: "完了" },
 ];
-
-export type StatusKey = "open"|"investigating"|"waiting"|"in_progress"|"done";
 
 export function normalizeStatus(s?: string): StatusKey {
   switch (s) {
@@ -27,50 +27,53 @@ export function normalizeStatus(s?: string): StatusKey {
   }
 }
 
-export default function StatusProgress({ current }: { current?: string }) {
+export default function StatusProgress({
+  current,
+  editable,
+  onChange,
+}: {
+  current?: string;
+  editable?: boolean;
+  onChange?: (next: StatusKey) => void;
+}) {
   const now = normalizeStatus(current);
   const idx = STEPS.findIndex(s => s.key === now);
-
   const percent = Math.max(0, idx) * (100 / (STEPS.length - 1));
 
   return (
     <div className="mt-4">
-      {/* ベースライン（太め） */}
       <div className="relative h-2.5 bg-gray-200 rounded-full">
-        {/* 進捗（Azureブルー） */}
-        <div
-          className="absolute h-2.5 bg-[#0078D4] rounded-full transition-all"
-          style={{ width: `${percent}%` }}
-        />
-        {/* 丸（各ステップ位置） */}
+        <div className="absolute h-2.5 bg-[#0078D4] rounded-full transition-all" style={{ width: `${percent}%` }} />
         <div className="absolute inset-0 flex justify-between items-center px-[2px]">
           {STEPS.map((s, i) => {
             const active = i <= idx;
+            const cls = [
+              "block w-5 h-5 rounded-full bg-white border-2",
+              active ? "border-[#0078D4]" : "border-gray-300",
+              editable ? "cursor-pointer hover:shadow" : "cursor-default",
+            ].join(" ");
             return (
-              <div key={s.key} className="relative flex items-center justify-center" style={{ width: 0 }}>
-                <span
-                  className={[
-                    "block w-5 h-5 rounded-full bg-white border-2",
-                    active ? "border-[#0078D4]" : "border-gray-300"
-                  ].join(" ")}
-                  title={s.label}
-                />
-              </div>
+              <button
+                key={s.key}
+                type="button"
+                className="relative flex items-center justify-center"
+                style={{ width: 0 }}
+                title={s.label}
+                aria-label={s.label}
+                onClick={editable && onChange ? () => onChange(s.key) : undefined}
+              >
+                <span className={cls} />
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* ラベル行（現在位置まで濃色） */}
       <div className="mt-2 flex justify-between text-xs">
         {STEPS.map((s, i) => {
           const active = i <= idx;
           return (
-            <span
-              key={s.key}
-              className={active ? "font-medium text-[#1f2937]" : "text-gray-500"}
-              style={{ width: 0 }}
-            >
+            <span key={s.key} className={active ? "font-medium text-[#1f2937]" : "text-gray-500"} style={{ width: 0 }}>
               {s.label}
             </span>
           );
