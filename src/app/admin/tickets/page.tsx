@@ -2,11 +2,12 @@
 import { useSearchParams, useRouter } from "next/navigation";
 import TicketsGrid from "@/components/TicketsGrid";
 import TicketsTable from "@/components/TicketsTable";
+import AdminDashboard from "@/components/AdminDashboard";
 
 export default function AdminTickets() {
   const sp = useSearchParams();
   const router = useRouter();
-  const view = (sp.get("view") ?? "cards") as "cards"|"table";
+  const view = (sp.get("view") ?? "cards") as "cards"|"table"|"dashboard";
 
   return (
     <div className="space-y-4">
@@ -21,10 +22,16 @@ export default function AdminTickets() {
             className={`px-3 py-1.5 text-sm border-l ${view==="table" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`}
             onClick={() => router.push("?view=table")}
           >テーブル</button>
+          <button
+            className={`px-3 py-1.5 text-sm border-l ${view==="dashboard" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`}
+            onClick={() => router.push("?view=dashboard")}
+          >ダッシュボード</button>
         </div>
       </div>
 
-      {view === "cards" ? <TicketsGrid scope="all" admin /> : <TicketsTable />}
+      {view === "cards" && <TicketsGrid scope="all" admin />}
+      {view === "table" && <TicketsTable />}
+      {view === "dashboard" && <AdminDashboard />}
     </div>
   );
 }
