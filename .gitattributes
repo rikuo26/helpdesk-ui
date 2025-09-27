@@ -1,0 +1,4 @@
+* text=auto eol=lf
+
+# JSONは常にテキスト扱い（BOMは付けない運用）
+*.json text
