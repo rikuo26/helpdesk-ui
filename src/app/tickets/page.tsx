@@ -1,36 +1,47 @@
-﻿import Link from "next/link";
-import { getTickets, type Ticket } from "@/lib/api";
+﻿"use client";
+export const dynamic = "force-dynamic";
 
-export const dynamic = "force-dynamic";  // ← 追加：ビルド時実行を避ける
+import React from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import TicketsGrid from "@/components/TicketsGrid";
+import TicketsTable from "@/components/TicketsTable";
+import AdminDashboard from "@/components/AdminDashboard"; // ← これを使う
 
-function fmtJST(iso?: string) {
-  if (!iso) return "";
-  const d = new Date(iso);
-  return new Intl.DateTimeFormat("ja-JP", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Tokyo" }).format(d);
-}
+export default function AdminTicketsPage() {
+  const router = useRouter();
+  const sp = useSearchParams();
+  const view = (sp?.get("view") ?? "cards") as "cards" | "table" | "dashboard";
 
-export default async function Page() {
-  const items = (await getTickets()) as Ticket[];
   return (
-    <main style={{ padding: 24 }}>
-      <h1>Tickets</h1>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Tickets (Admin)</h1>
 
-      {items.length === 0 ? (
-        <p>チケットはありません。</p>
-      ) : (
-        <ul>
-          {items.map((t) => (
-            <li key={t.id} style={{ marginBottom: 8 }}>
-              <Link href={`/tickets/${t.id}`}>{t.title ?? t.id}</Link>
-              {t.createdAt && <span style={{ marginLeft: 8, opacity: 0.7 }}>{fmtJST(t.createdAt)}</span>}
-            </li>
-          ))}
-        </ul>
-      )}
-
-      <div style={{ marginTop: 16 }}>
-        <Link href="/tickets/new" style={{ fontWeight: 600 }}>＋ 新規作成</Link>
+        <div className="inline-flex rounded-xl border overflow-hidden">
+          <button
+            className={`px-3 py-1.5 text-sm ${view === "cards" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`}
+            onClick={() => router.push("?view=cards")}
+          >
+            Cards
+          </button>
+          <button
+            className={`px-3 py-1.5 text-sm border-l ${view === "table" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`}
+            onClick={() => router.push("?view=table")}
+          >
+            Table
+          </button>
+          <button
+            className={`px-3 py-1.5 text-sm border-l ${view === "dashboard" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`}
+            onClick={() => router.push("?view=dashboard")}
+          >
+            Dashboard
+          </button>
+        </div>
       </div>
-    </main>
+
+      {view === "cards" && <TicketsGrid scope="all" admin />}
+      {view === "table" && <TicketsTable />}
+      {view === "dashboard" && <AdminDashboard />} {/* ← Coming soon を撤回 */}
+    </div>
   );
 }

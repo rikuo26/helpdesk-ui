@@ -1,58 +1,66 @@
-﻿export type Ticket = { id: string; title: string; description: string; createdAt?: string };
-export type TicketInput = { title: string; description: string };
-
-/** 実行時BASE（無ければプロキシへ流す） */
-function getBase() {
-  const raw = process.env.NEXT_PUBLIC_API_BASE_URL?.trim();
-  return raw ? (raw.endsWith("/") ? raw.slice(0, -1) : raw) : "";
+/** Common API helpers */
+function abs(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  const base = process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_ORIGIN || "http://localhost:3000";
+  try { return new URL(path, base).toString(); } catch { return path; }
 }
 
-function buildUrl(path: string) {
-  const base = getBase();
-  if (base) {
-    const url = new URL(path, base);
-    const key = process.env.NEXT_PUBLIC_API_KEY?.trim();
-    if (key) url.searchParams.set("code", key);
-    return url.toString();
+async function request<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  const res = await fetch(abs(path), init);
+  const text = await res.text();
+  let data: any = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  if (!res.ok) {
+    const msg = (data && (data.error || data.message)) || (typeof data === "string" ? data : `HTTP ${res.status}`);
+    throw new Error(msg);
   }
-  if (path.startsWith("/api/tickets/")) return path.replace("/api/tickets/", "/api/proxy-tickets/");
-  if (path === "/api/tickets") return "/api/proxy-tickets";
-  if (path === "/api/health")  return "/api/health";
-  throw new Error("API base URL is not set (NEXT_PUBLIC_API_BASE_URL).");
+  return data as T;
 }
 
-export async function getTickets() {
-  const r = await fetch(buildUrl("/api/tickets"), { cache: "no-store" });
-  if (!r.ok) throw new Error(`tickets NG: ${r.status}`);
-  return r.json() as Promise<Ticket[]>;
+export async function apiGet<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  return request<T>(path, { ...init, method: "GET" });
+}
+export async function apiPost<TReq = any, TRes = any>(path: string, body?: TReq, init: RequestInit = {}): Promise<TRes> {
+  const headers = { "Content-Type": "application/json", ...(init.headers || {}) };
+  return request<TRes>(path, { ...init, method: "POST", headers, body: body != null ? JSON.stringify(body) : undefined });
+}
+export async function apiPatch<TReq = any, TRes = any>(path: string, body?: TReq, init: RequestInit = {}): Promise<TRes> {
+  const headers = { "Content-Type": "application/json", ...(init.headers || {}) };
+  return request<TRes>(path, { ...init, method: "PATCH", headers, body: body != null ? JSON.stringify(body) : undefined });
+}
+export async function apiPut<TReq = any, TRes = any>(path: string, body?: TReq, init: RequestInit = {}): Promise<TRes> {
+  const headers = { "Content-Type": "application/json", ...(init.headers || {}) };
+  return request<TRes>(path, { ...init, method: "PUT", headers, body: body != null ? JSON.stringify(body) : undefined });
 }
 
-export async function getTicket(id: string): Promise<Ticket | null> {
-  const r = await fetch(buildUrl(`/api/tickets/${encodeURIComponent(id)}`), { cache: "no-store" });
-  if (r.status === 404) {
-    // ★ 簡易フォールバック：一覧から拾う
-    try {
-      const all = (await getTickets()) as Ticket[];
-      return all.find(x => x.id === id) ?? null;
-    } catch {
-      return null;
-    }
-  }
-  if (!r.ok) throw new Error(`ticket NG: ${r.status}`);
-  return r.json();
-}
+/** Tickets facade */
+export type Ticket = {
+  id: string;
+  title?: string;
+  description?: string;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  attachments?: any[];
+};
 
-export async function createTicket(input: TicketInput): Promise<{ id: string }> {
-  const r = await fetch(buildUrl("/api/tickets"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(input),
-  });
-  if (!r.ok) {
-    const text = await r.text().catch(() => "");
-    throw new Error(`create NG: ${r.status} ${text}`);
-  }
-  return r.json();
+export async function getTickets(params: Record<string, any> = {}): Promise<Ticket[]> {
+  const qs = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) { if (v != null) qs.set(k, String(v)); }
+  const q = qs.toString();
+  return apiGet(`/api/tickets${q ? `?${q}` : ""}`);
 }
-
-// 使っている他の関数（health など）があればこの下に置く
+export async function getTicket(id: string): Promise<Ticket> {
+  return apiGet(`/api/tickets/${encodeURIComponent(id)}`);
+}
+export async function createTicket(data: Partial<Ticket> & { attachments?: any[] } = {}): Promise<Ticket> {
+  return apiPost(`/api/tickets`, data);
+}
+export async function updateTicket(id: string, data: any) {
+  return apiPatch(`/api/tickets/${encodeURIComponent(id)}`, data);
+}
+export async function deleteTicket(id: string) {
+  const res = await fetch(abs(`/api/tickets/${encodeURIComponent(id)}`), { method: "DELETE" });
+  if (!res.ok) throw new Error((await res.text()) || "deleteTicket failed");
+  return true;
+}

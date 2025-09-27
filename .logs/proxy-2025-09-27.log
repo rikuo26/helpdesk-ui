@@ -1,0 +1,179 @@
+[b780bd60] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 894ms body=2B
+[f6d30edb] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 100ms body=2B
+[0082bc83] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 68ms body=2B
+[99d54cdf] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 217ms body=316B
+[1ddf4b09] tickets/[id] GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/gcevscvq?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 135ms body=298B
+[6c8b6bd1] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 81ms body=316B
+[31de3681] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 65ms body=316B
+[6395887d] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/gcevscvq?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 73ms body=0B
+[6395887d] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=gcevscvq 404 54ms body=0B
+[b39343c3] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 56ms body=316B
+[d0fe4001] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 1046ms body=316B
+[96e59deb] tickets/[id] GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/gcevscvq?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 146ms body=30B
+2025-09-27T08:46:05.064Z [gfcs7qx4] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 446ms body=2B
+2025-09-27T08:46:25.894Z [wjm7sa1t] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 278ms body=141B
+2025-09-27T08:46:27.175Z [59y4sm6n] tickets/[id] GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/7rjctryk?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 393ms body=123B
+2025-09-27T08:46:29.094Z [hamhg9lc] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 74ms body=141B
+2025-09-27T08:46:32.343Z [pv4kmwxw] tickets/[id] PATCH -> converted to PUT
+2025-09-27T08:46:32.442Z [pv4kmwxw] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/7rjctryk?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 97ms body=0B
+2025-09-27T08:46:32.495Z [pv4kmwxw] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=7rjctryk 404 50ms body=0B (fallback)
+2025-09-27T08:46:32.562Z [1qg618uy] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 57ms body=141B
+2025-09-27T08:46:36.053Z [olgyxo7c] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 52ms body=141B
+2025-09-27T08:46:36.225Z [kiwfig44] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&granularity=day&days=14 200 213ms body=141B
+2025-09-27T08:46:42.759Z [4lvupbm2] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 271ms body=141B
+2025-09-27T08:46:43.983Z [fbwkpgc2] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 64ms body=141B
+2025-09-27T08:46:54.358Z [i2x5tw5b] tickets/[id] PATCH -> converted to PUT
+2025-09-27T08:46:54.581Z [i2x5tw5b] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/7rjctryk?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 222ms body=0B
+2025-09-27T08:46:54.630Z [i2x5tw5b] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=7rjctryk 404 48ms body=0B (fallback)
+2025-09-27T08:46:54.699Z [2cxcqjmz] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 57ms body=141B
+[1f1ea4a6] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 4474ms body=2B
+[4a602a37] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 115ms body=2B
+[6b3309c7] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 245ms body=137B
+[eed02cec] tickets/[id] GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 210ms body=119B
+[b82fc384] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 65ms body=137B
+[fd5c1643] tickets/[id] PATCH -> converted to PUT
+[fd5c1643] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 74ms body=0B
+[fd5c1643] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=u0asqh8t 404 58ms body=0B (fallback)
+[acd3cceb] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 64ms body=137B
+[8b59aa83] tickets/[id] GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 337ms body=119B
+[0463655c] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 90ms body=137B
+[5415951a] tickets/[id] PATCH -> converted to PUT
+[5415951a] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 59ms body=0B
+[5415951a] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=u0asqh8t 404 54ms body=0B (fallback)
+[c4bd371a] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 59ms body=137B
+[6b6f9c73] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 63ms body=137B
+[a81cc67a] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&granularity=day&days=14 200 237ms body=137B
+[bf42d460] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 75ms body=137B
+[ed342c6a] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 70ms body=137B
+[2546f5e2] tickets/[id] PATCH -> converted to PUT
+[2546f5e2] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 284ms body=0B
+[2546f5e2] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=u0asqh8t 404 53ms body=0B (fallback)
+[daa93c3a] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 55ms body=137B
+[42d7d165] tickets/[id] PATCH -> converted to PUT
+[42d7d165] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 57ms body=0B
+[42d7d165] tickets/[id] PUT -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=u0asqh8t 404 52ms body=0B (fallback)
+[3819153c] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 53ms body=137B
+[6b28a80c] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 395ms body=579B
+[cf61e9d6] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 60ms body=579B
+[29e2e734] tickets/[id] PUT path-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 66ms body=0B
+[29e2e734] tickets/[id] PUT query-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 63ms body=0B
+[29e2e734] tickets/[id] PATCH path-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 69ms body=0B
+[29e2e734] tickets/[id] PATCH query-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 60ms body=0B
+[29e2e734] tickets/[id] POST path-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 63ms body=0B
+[29e2e734] tickets/[id] POST query-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 400 73ms body=44B
+[259c6aae] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 58ms body=579B
+[00238ca5] tickets/[id] PUT path-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 49ms body=0B
+[00238ca5] tickets/[id] PUT query-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 61ms body=0B
+[00238ca5] tickets/[id] PATCH path-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 55ms body=0B
+[00238ca5] tickets/[id] PATCH query-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 77ms body=0B
+[00238ca5] tickets/[id] POST path-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 52ms body=0B
+[00238ca5] tickets/[id] POST query-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 400 57ms body=44B
+[6a686933] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 60ms body=579B
+[502812e0] tickets/[id] PUT path-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 337ms body=0B
+[502812e0] tickets/[id] PUT query-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 87ms body=0B
+[502812e0] tickets/[id] PATCH path-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 63ms body=0B
+[502812e0] tickets/[id] PATCH query-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 94ms body=0B
+[502812e0] tickets/[id] POST path-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 83ms body=0B
+[502812e0] tickets/[id] POST query-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 400 77ms body=44B
+[7d136fc4] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 76ms body=579B
+[583a6b32] tickets/[id] PUT path-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 255ms body=0B
+[583a6b32] tickets/[id] PUT query-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 51ms body=0B
+[583a6b32] tickets/[id] PATCH path-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 55ms body=0B
+[583a6b32] tickets/[id] PATCH query-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 50ms body=0B
+[583a6b32] tickets/[id] POST path-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 53ms body=0B
+[583a6b32] tickets/[id] POST query-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 400 52ms body=44B
+[b530b3f9] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 53ms body=579B
+[cac36674] tickets/[id] undefined path-get -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/u0asqh8t?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 295ms body=119B
+[e70432c8] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 310ms body=579B
+[3cb8175a] tickets/[id] PUT path-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 69ms body=0B
+[3cb8175a] tickets/[id] PUT query-put -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 52ms body=0B
+[3cb8175a] tickets/[id] PATCH path-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 73ms body=0B
+[3cb8175a] tickets/[id] PATCH query-patch -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 59ms body=0B
+[3cb8175a] tickets/[id] POST path-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 63ms body=0B
+[3cb8175a] tickets/[id] POST query-post -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 400 54ms body=44B
+[af495740] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 59ms body=579B
+[19ab285f] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 379ms body=579B
+[ae0ae535] tickets/[id] PATCH (try:PATCH/path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 64ms body=0B
+[ae0ae535] tickets/[id] PATCH (try:PATCH/query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 51ms body=0B
+[ae0ae535] tickets/[id] PATCH (try:PUT/path-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 68ms body=0B
+[ae0ae535] tickets/[id] PATCH (try:PUT/query-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 48ms body=0B
+[4c7b07d1] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 56ms body=579B
+[153dbe30] tickets/[id] PATCH (try:PATCH/path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 292ms body=0B
+[153dbe30] tickets/[id] PATCH (try:PATCH/query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 52ms body=0B
+[153dbe30] tickets/[id] PATCH (try:PUT/path-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 51ms body=0B
+[153dbe30] tickets/[id] PATCH (try:PUT/query-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 55ms body=0B
+[cc6fabfd] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 53ms body=579B
+[10598b33] tickets/[id] GET -> GET https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 157ms body=427B
+[7ee18c8d] tickets/[id] PATCH (try:PATCH/path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 240ms body=0B
+[7ee18c8d] tickets/[id] PATCH (try:PATCH/query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 56ms body=0B
+[7ee18c8d] tickets/[id] PATCH (try:PUT/path-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 54ms body=0B
+[7ee18c8d] tickets/[id] PATCH (try:PUT/query-alt) -> PUT https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 56ms body=0B
+[fc2b583c] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 58ms body=579B
+[b0a39343] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 334ms body=579B
+[3c5aa448] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&granularity=day&days=14 200 325ms body=579B
+[60d3f116] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 912ms body=2B
+[49fdc8c9] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 246ms body=446B
+[edb1ef1c] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 81ms body=446B
+[380897b8] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 66ms body=446B
+2025-09-27T10:31:18.193Z [83edbce7] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/rpa60eqp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 86ms body=0B
+2025-09-27T10:31:18.247Z [83edbce7] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=rpa60eqp 404 52ms body=0B
+2025-09-27T10:31:18.311Z [83edbce7] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 63ms body=0B
+[d3328c1d] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 64ms body=446B
+2025-09-27T10:31:32.742Z [d4ba6f6b] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/pqwslubp?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 255ms body=0B
+2025-09-27T10:31:32.796Z [d4ba6f6b] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=pqwslubp 404 53ms body=0B
+2025-09-27T10:31:32.859Z [d4ba6f6b] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 61ms body=0B
+[5e916e21] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 5005ms body=2B
+[6a2b4689] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 122ms body=2B
+[28110c8a] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 336ms body=535B
+2025-09-27T10:58:06.730Z [af8468f0] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/9wzx0kjh?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 74ms body=0B
+2025-09-27T10:58:06.786Z [af8468f0] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=9wzx0kjh 404 54ms body=0B
+2025-09-27T10:58:06.841Z [af8468f0] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 53ms body=0B
+[a13fbb83] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 58ms body=535B
+[044cab37] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 216ms body=535B
+[ff0b3179] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&granularity=day&days=14 200 232ms body=535B
+[7f3c88ad] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 98ms body=535B
+[ab9d4a88] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 76ms body=535B
+[30671ab5] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 235ms body=535B
+[29bc5e84] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 406ms body=535B
+[a222f8b7] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 210ms body=535B
+[13250710] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 67ms body=535B
+2025-09-27T10:58:41.736Z [df88587e] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/9wzx0kjh?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 57ms body=0B
+2025-09-27T10:58:41.789Z [df88587e] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=9wzx0kjh 404 51ms body=0B
+2025-09-27T10:58:41.851Z [df88587e] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 60ms body=0B
+[fb52d3a1] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 53ms body=535B
+[457bf485] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 370ms body=535B
+[6c6453a6] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 72ms body=535B
+[aa7e9341] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 62ms body=535B
+2025-09-27T11:15:58.600Z [8212fdfd] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/9wzx0kjh?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 65ms body=0B
+2025-09-27T11:15:58.653Z [8212fdfd] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=9wzx0kjh 404 51ms body=0B
+2025-09-27T11:15:58.717Z [8212fdfd] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 62ms body=0B
+[d8afa7aa] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 55ms body=535B
+[29bb6b55] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 341ms body=2755B
+[0c15f3e1] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=mine&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 215ms body=2755B
+[ead15c90] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 106ms body=2755B
+2025-09-27T11:26:43.697Z [e395ff95] tickets/[id] PATCH (path) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets/9wzx0kjh?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 60ms body=0B
+2025-09-27T11:26:43.765Z [e395ff95] tickets/[id] PATCH (query) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D&id=9wzx0kjh 404 65ms body=0B
+2025-09-27T11:26:43.827Z [e395ff95] tickets/[id] PATCH (root-with-id) -> PATCH https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 404 60ms body=0B
+[4117bc25] tickets GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?scope=all&code=s2cjF67C0NYMNVq6lYfHTUPTh-e4PO0Q-xz_GbqfrUUaAzFu0Vh6Ig%3D%3D 200 55ms body=2755B
+[14834536] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 603ms body=2B
+[1150e2ec] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 701ms body=2B
+[d883b07a] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 78ms body=2B
+[e43b4555] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=month&months=6 200 438ms body=2B
+[b345e15b] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 77ms body=2B
+[37d49d54] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=month&months=12 200 80ms body=2B
+[9f28e5b8] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 57ms body=2B
+[69f4d626] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=month&months=6 200 54ms body=2B
+[4f25c6b2] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 77ms body=2B
+[fabbe1ba] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=month&months=3 200 73ms body=2B
+[3900aed9] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 381ms body=2B
+[4a36cf8a] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 434ms body=2B
+[b67fa913] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 1404ms body=137B
+[3ee3034b] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 1623ms body=2B
+[6b5ec345] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 69ms body=137B
+[d2d5cdb5] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 62ms body=137B
+[2b3f748a] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 65ms body=146B
+[294c2fac] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 267ms body=2B
+[ce05f0c1] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 71ms body=273B
+[1eec9a7b] stats GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D 200 83ms body=2B
+[ac220237] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 444ms body=2B
+[65a84632] stats/users GET -> https://func-helpdesk-k7a.azurewebsites.net/api/tickets?code=xYWQ1z3xVihUhI8DKD4FtnNAetK_I6jtOO-CbThgIPsIAzFuIf3UNA%3D%3D&granularity=day&days=14 200 440ms body=2B

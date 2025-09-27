@@ -1,4 +1,5 @@
-﻿import TicketsGrid from "@/components/TicketsGrid";
+export const dynamic = "force-dynamic";
+import TicketsGrid from "@/components/TicketsGrid";
 
 export default function MyTickets() {
   return (
