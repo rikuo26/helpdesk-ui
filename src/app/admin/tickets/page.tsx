@@ -1,31 +1,27 @@
-﻿"use client";
-export const dynamic = "force-dynamic";
+﻿import { toArray, valuesToArray, sum } from "./stats-utils";
 
-import React from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import TicketsGrid from "@/components/TicketsGrid";
-import TicketsTable from "@/components/TicketsTable";
-import AdminDashboard from "@/components/AdminDashboard";
+export default async function AdminTicketsPage() {
+  const base = "";
+  const [stats, users] = await Promise.all([
+    fetch(`${base}/api/tickets/stats?days=14`, { cache: "no-store" }).then(r=>r.json()),
+    fetch(`${base}/api/tickets/stats/users?days=14`, { cache: "no-store" }).then(r=>r.json()),
+  ]);
 
-export default function AdminTicketsPage() {
-  const router = useRouter();
-  const sp = useSearchParams();
-  const view = (sp?.get("view") ?? "cards") as "cards" | "table" | "dashboard";
+  const labels = toArray<string>(stats?.series?.labels);
+  const counts = toArray<number>(stats?.series?.counts);
+  const byStatus = valuesToArray(stats?.byStatus);
+  const totalByStatus = sum(byStatus);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Tickets (Admin)</h1>
-        <div className="inline-flex rounded-xl border overflow-hidden">
-          <button className={`px-3 py-1.5 text-sm ${view==="cards" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`} onClick={() => router.push("?view=cards")}>Cards</button>
-          <button className={`px-3 py-1.5 text-sm border-l ${view==="table" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`} onClick={() => router.push("?view=table")}>Table</button>
-          <button className={`px-3 py-1.5 text-sm border-l ${view==="dashboard" ? "bg-[#E6F2FB] text-[#0f5ea8]" : "bg-white hover:bg-gray-50"}`} onClick={() => router.push("?view=dashboard")}>Dashboard</button>
-        </div>
-      </div>
-
-      {view === "cards" && <TicketsGrid scope="all" admin />}
-      {view === "table" && <TicketsTable />}
-      {view === "dashboard" && <AdminDashboard />}
-    </div>
+    <main style={{padding:24}}>
+      <h1>チケット ダッシュボード</h1>
+      <ul>
+        <li>総件数: {Number(stats?.total)||0}</li>
+        <li>本日新規: {Number(stats?.newToday)||0}</li>
+        <li>ステータス合計: {totalByStatus}</li>
+      </ul>
+      <pre>{JSON.stringify({ labels, counts }, null, 2)}</pre>
+      <pre>{JSON.stringify(users, null, 2)}</pre>
+    </main>
   );
 }
