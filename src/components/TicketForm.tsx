@@ -15,13 +15,21 @@ export default function TicketForm() {
     e.preventDefault();
     if (!isValid || busy) return;
     setBusy(true); setMsg(null);
+
+    // 相関ID（サーバにも飛ばす・UIにも表示）
+    const cid = (() => {
+      try { return globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`; }
+      catch { return `${Date.now()}`; }
+    })();
+
     try {
-      await apiFetch("/tickets", {
+      const created = await apiFetch<any>("/tickets", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "content-type": "application/json", "x-correlation-id": cid },
         body: JSON.stringify({ title: title.trim(), description }),
       });
-      setMsg("送信しました。担当へ通知します。");
+      const newId = created?.id ?? created?.ticket?.id ?? created?.data?.id ?? "";
+      setMsg(`送信しました（相関ID: ${cid}${newId ? `, ID: ${newId}` : ""}）`);
       setTitle(""); setDescription("");
     } catch (err:any) {
       setMsg("送信に失敗しました: " + (err?.message || err));

@@ -1,29 +1,56 @@
+import { Buffer } from "buffer";
+
+/**
+ * Next の Route Handler から Azure Functions に中継。
+ * - x-ms-client-principal を付与（SWA の .auth/me を Base64 化）
+ * - x-functions-key を付与（FUNC_HOST_KEY / FUNCTIONS_API_KEY）
+ * - 余計な Cookie は落として安定化
+ * - 相関ID (x-correlation-id) を自動付与
+ */
 export async function proxyToFunc(req: Request, funcPath: string) {
-  const base = (process.env.FUNC_BASE
-    || process.env.SELF_BASE
+  const reqUrl = new URL(req.url);
+  const selfBase = (process.env.SELF_BASE
     || process.env.PUBLIC_BASE_URL
-    || "").replace(/\/+$/,"");
-  if (!base) {
-    return new Response(JSON.stringify({ error:"FUNC_BASE is not configured" }), {
-      status: 500,
-      headers: { "content-type":"application/json" }
-    });
-  }
-  const url = `${base}${funcPath.startsWith("/") ? "" : "/"}${funcPath}`;
+    || `${reqUrl.protocol}//${reqUrl.host}`).replace(/\/+$/, "");
+
+  const funcBase = (process.env.FUNC_BASE || selfBase).replace(/\/+$/, "");
+  const url = `${funcBase}${funcPath.startsWith("/") ? "" : "/"}${funcPath}`;
+
   const method = req.method || "GET";
-  const h = new Headers(req.headers);
+  const inH = new Headers(req.headers);
+  const outH = new Headers(inH);
 
-  // Functions 側は authLevel:function。ホストキーがあれば付与
+  // Functions ホストキー
   const hostKey = process.env.FUNC_HOST_KEY || process.env.FUNCTIONS_API_KEY;
-  if (hostKey && !h.has("x-functions-key")) h.set("x-functions-key", hostKey);
+  if (hostKey && !outH.has("x-functions-key")) outH.set("x-functions-key", hostKey);
 
-  // 余計な Cookie は落とす（匿名 API 安定化）
-  h.delete("cookie");
+  // Cookie は落とす（匿名APIの安定化）
+  outH.delete("cookie");
 
-  const body = (method === "GET" || method === "HEAD") ? undefined : await req.arrayBuffer().catch(async () => (await req.text()) as any);
-  const r = await fetch(url, { method, headers: h, body, redirect: "manual", cache:"no-store" });
+  // SWA 認証の Principal を Functions へ中継
+  try {
+    const cookie = inH.get("cookie") || "";
+    if (cookie) {
+      const me = await fetch(`${selfBase}/.auth/me`, { headers: { cookie }, cache: "no-store" });
+      if (me.ok) {
+        const meJson = await me.json();
+        const b64 = Buffer.from(JSON.stringify(meJson)).toString("base64");
+        outH.set("x-ms-client-principal", b64);
+      }
+    }
+  } catch { /* 取得失敗時は匿名で継続 */ }
 
-  // レスポンスはパススルー（content-type/ステータスを保持）
-  const respHeaders = new Headers(r.headers);
-  return new Response(r.body, { status: r.status, headers: respHeaders });
+  // 相関ID
+  if (!outH.has("x-correlation-id")) {
+    const cid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    outH.set("x-correlation-id", cid);
+  }
+
+  const body = (method === "GET" || method === "HEAD")
+    ? undefined
+    : await req.arrayBuffer().catch(() => undefined);
+
+  const res = await fetch(url, { method, headers: outH, body, redirect: "manual", cache: "no-store" });
+  const resHeaders = new Headers(res.headers);
+  return new Response(res.body, { status: res.status, headers: resHeaders });
 }
