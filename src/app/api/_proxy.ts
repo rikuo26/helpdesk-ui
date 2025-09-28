@@ -1,46 +1,29 @@
-export const runtime = "nodejs";
-
-/** Function App のベース URL を決定（ENV 優先、なければこの環境の既定） */
-function getFuncBase(): string {
-  const cand =
-    process.env.FUNC_BASE ||
-    process.env.NEXT_PUBLIC_FUNC_BASE ||
-    process.env.FUNCAPP_BASE ||
-    ""; // なければ既定にフォールバック
-  const base = (cand || "https://func-helpdesk-k7a.azurewebsites.net").replace(/\/+$/,"");
-  return base;
-}
-
 export async function proxyToFunc(req: Request, funcPath: string) {
-  // ★ Next 自身ではなく「Function App」へ必ず投げる
-  const base = getFuncBase();
-  const url  = new URL(base + funcPath);
-
+  const base = (process.env.FUNC_BASE
+    || process.env.SELF_BASE
+    || process.env.PUBLIC_BASE_URL
+    || "").replace(/\/+$/,"");
+  if (!base) {
+    return new Response(JSON.stringify({ error:"FUNC_BASE is not configured" }), {
+      status: 500,
+      headers: { "content-type":"application/json" }
+    });
+  }
+  const url = `${base}${funcPath.startsWith("/") ? "" : "/"}${funcPath}`;
   const method = req.method || "GET";
   const h = new Headers(req.headers);
 
-  // 再帰や CORS のもとになるヘッダーは落とす
+  // Functions 側は authLevel:function。ホストキーがあれば付与
+  const hostKey = process.env.FUNC_HOST_KEY || process.env.FUNCTIONS_API_KEY;
+  if (hostKey && !h.has("x-functions-key")) h.set("x-functions-key", hostKey);
+
+  // 余計な Cookie は落とす（匿名 API 安定化）
   h.delete("cookie");
-  h.delete("host");
 
-  // host key を header と query の両方で付与（どちらでも通るように）
-  const hostKey =
-    process.env.FUNC_HOST_KEY ||
-    process.env.FUNCTIONS_HOST_KEY ||
-    process.env.FUNC_CODE; // 任意
-  if (hostKey) {
-    h.set("x-functions-key", hostKey);
-    if (!url.searchParams.has("code")) url.searchParams.set("code", hostKey);
-  }
+  const body = (method === "GET" || method === "HEAD") ? undefined : await req.arrayBuffer().catch(async () => (await req.text()) as any);
+  const r = await fetch(url, { method, headers: h, body, redirect: "manual", cache:"no-store" });
 
-  const body = (method === "GET" || method === "HEAD") ? undefined : await req.text();
-  const r = await fetch(url.toString(), { method, headers: h, body, redirect: "follow" });
-
-  const respHeaders = new Headers();
-  const ct = r.headers.get("content-type");
-  if (ct) respHeaders.set("content-type", ct);
-  respHeaders.set("x-proxy-target", url.origin);
-
-  const buf = await r.arrayBuffer();
-  return new Response(buf, { status: r.status, headers: respHeaders });
+  // レスポンスはパススルー（content-type/ステータスを保持）
+  const respHeaders = new Headers(r.headers);
+  return new Response(r.body, { status: r.status, headers: respHeaders });
 }
