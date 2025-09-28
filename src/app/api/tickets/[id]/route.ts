@@ -1,15 +1,28 @@
 import { proxyToFunc, runtime } from "../../_proxy";
 export { runtime };
 
-export async function GET(req: Request, ctx: { params: { id: string }}) {
+// Next.js 15: context.params が Promise になる型推論
+export async function GET(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
   const u = new URL(req.url);
-  return proxyToFunc(req, `/api/tickets/${ctx.params.id}` + (u.search || ""));
+  return proxyToFunc(req, `/api/tickets/${id}` + (u.search || ""));
 }
 
-export async function PATCH(req: Request, ctx: { params: { id: string }}) {
-  return proxyToFunc(req, `/api/tickets/${ctx.params.id}`);
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return proxyToFunc(req, `/api/tickets/${id}`);
 }
 
-export async function DELETE(req: Request, ctx: { params: { id: string }}) {
-  return proxyToFunc(req, `/api/tickets/${ctx.params.id}`);
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return proxyToFunc(req, `/api/tickets/${id}`);
 }
