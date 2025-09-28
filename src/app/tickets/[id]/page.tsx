@@ -1,4 +1,3 @@
-import type { PageProps } from "next";
 import { getTicket } from "@/lib/api";
 
 type Ticket = {
@@ -11,9 +10,9 @@ type Ticket = {
 };
 
 export default async function TicketDetailPage(
-  { params }: PageProps<{ id: string }>
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  // Next 15: params は Promise。await してから使う
+  // Next 15: params は Promise
   const { id } = await params;
 
   // 取得失敗でもページは落とさない
