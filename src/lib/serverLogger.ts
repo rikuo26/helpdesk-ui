@@ -25,3 +25,4 @@ export async function readProxyLogTail(lines = 200): Promise<string> {
   const n = Math.min(Math.max(lines, 1), 5000);
   return arr.slice(-n).join("\n");
 }
+

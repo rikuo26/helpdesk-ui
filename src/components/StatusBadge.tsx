@@ -14,3 +14,4 @@ export default function StatusBadge({ value }: { value?: string }) {
   return <span className={`text-xs rounded-full px-2 py-0.5 border ${cls}`}>{text}</span>;
 }
 
+

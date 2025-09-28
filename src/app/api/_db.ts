@@ -39,3 +39,4 @@ export function updateStatus(id: string, status: Ticket["status"]) {
   return _db[i];
 }
 
+

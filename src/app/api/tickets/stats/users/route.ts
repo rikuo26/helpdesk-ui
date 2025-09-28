@@ -6,3 +6,4 @@ export async function GET(req: Request) {
   return proxyToFunc(req, `/api/tickets-stats-users${u.search}`);
 }
 
+

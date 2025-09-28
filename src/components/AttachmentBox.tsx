@@ -222,3 +222,4 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
     </div>
   );
 }
+

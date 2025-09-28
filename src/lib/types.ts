@@ -34,3 +34,4 @@ export interface TicketDetail extends Ticket {
   Updates?: TicketUpdate[];
 }
 
+

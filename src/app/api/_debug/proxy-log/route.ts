@@ -10,3 +10,4 @@ export async function GET(req: Request) {
   const text = await readProxyLogTail(Number.isFinite(n) ? n : 200);
   return new NextResponse(text, { status: 200, headers: { "content-type": "text/plain; charset=utf-8" } });
 }
+

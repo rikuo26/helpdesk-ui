@@ -64,3 +64,4 @@ export async function deleteTicket(id: string) {
   if (!res.ok) throw new Error((await res.text()) || "deleteTicket failed");
   return true;
 }
+

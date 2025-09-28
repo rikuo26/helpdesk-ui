@@ -9,3 +9,4 @@ export function sum(ns: unknown): number {
   const arr = toArray<number>(ns, []);
   return arr.reduce((a,b) => a + (Number(b)||0), 0);
 }
+
