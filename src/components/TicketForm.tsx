@@ -1,43 +1,65 @@
-﻿"use client";
+"use client";
 import { useState } from "react";
-import { toast } from "@/components/toast";
+import { apiFetch } from "@/lib/api";
 
 export default function TicketForm() {
   const [title, setTitle] = useState("");
-  const [desc, setDesc] = useState("");
+  const [description, setDescription] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string|null>(null);
+
+  const descLen = description.trim().length;
+  const isValid = title.trim().length > 0 && descLen >= 10;
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const res = await fetch("/api/tickets", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, description: desc }),
-    });
-    if (res.ok) {
-      toast.success("作成しました");
-      setTitle(""); setDesc("");
-    } else {
-      toast.error("作成に失敗しました");
+    if (!isValid || busy) return;
+    setBusy(true); setMsg(null);
+    try {
+      await apiFetch("/tickets", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ title: title.trim(), description }),
+      });
+      setMsg("送信しました。担当へ通知します。");
+      setTitle(""); setDescription("");
+    } catch (err:any) {
+      setMsg("送信に失敗しました: " + (err?.message || err));
+    } finally {
+      setBusy(false);
     }
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-3">
+    <form onSubmit={onSubmit} style={{display:"grid", gap:12}}>
       <div>
-        <label className="block text-sm mb-1">タイトル</label>
-        <input className="w-full rounded-lg border px-3 py-2"
-               value={title} onChange={e=>setTitle(e.target.value)}
-               required maxLength={80} />
+        <label style={{display:"block", fontWeight:600}}>件名 <span style={{color:"#ef4444"}}>必須</span></label>
+        <input value={title} onChange={e=>setTitle(e.target.value)}
+               placeholder="例）アプリの画面が真っ白になる" required
+               style={{width:"100%", border:"1px solid #ddd", padding:8, borderRadius:4}} />
       </div>
       <div>
-        <label className="block text-sm mb-1">内容</label>
-        <textarea className="w-full rounded-lg border px-3 py-2"
-                  value={desc} onChange={e=>setDesc(e.target.value)}
-                  required maxLength={2000} rows={6} />
+        <label style={{display:"block", fontWeight:600}}>内容 <span style={{color:"#ef4444"}}>必須</span></label>
+        <textarea value={description} onChange={e=>setDescription(e.target.value)}
+                  placeholder="再現手順、発生頻度、期待する動作、影響範囲など具体的にご記入ください。"
+                  rows={6} style={{width:"100%", border:"1px solid #ddd", padding:8, borderRadius:4}} />
+        <div style={{fontSize:12, color: descLen>=10 ? "#16a34a" : "#ea580c"}}>
+          {descLen>=10 ? "OK" : "10文字以上で具体的にご記入ください"}
+        </div>
       </div>
-      <button className="px-4 py-2 rounded-xl bg-black text-white">送信</button>
+      <div>
+        <label style={{display:"block", fontWeight:600}}>添付（任意）</label>
+        <div style={{border:"1px dashed #cbd5e1", padding:24, borderRadius:6, color:"#64748b"}}>
+          ここにドラッグ＆ドロップ（最大10MB, JPEG/PNG/WebP）※既存のアップロード復旧は別途
+        </div>
+      </div>
+      <div>
+        <button type="submit" disabled={!isValid || busy}
+                style={{padding:"8px 16px", background:"#2563eb", color:"#fff", borderRadius:6, opacity:(!isValid||busy)?0.6:1}}>
+          送信
+        </button>
+        {msg && <p style={{marginTop:8}}>{msg}</p>}
+      </div>
     </form>
   );
 }
-
-
