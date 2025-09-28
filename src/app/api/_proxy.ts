@@ -113,7 +113,7 @@ async function nodeRequest(
             if (Array.isArray(v)) h.set(k, v.join(", "));
             else if (typeof v === "string") h.set(k, v);
           }
-          h.delete("transfer-encoding");
+          h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
           h.set("x-proxy-sig", "v9-fallback-nodehttps");
           resolve(new Response(buf, { status: res.statusCode || 200, headers: h }));
         });
@@ -133,7 +133,9 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
 
     // 転送ヘッダ（禁止ヘッダは落とす）
     const headersObj = sanitizeToObject(req.headers);
-    if (key) headersObj["x-functions-key"] = key; // 冗長化（ヘッダにも載せる）
+    
+    headersObj["accept-encoding"] = "identity";
+if (key) headersObj["x-functions-key"] = key; // 冗長化（ヘッダにも載せる）
     delete headersObj["Expect"]; // 念のため大文字版も除去
     delete headersObj["expect"];
 
@@ -159,7 +161,7 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
         body: bodyInit as any,
       });
       const h = new Headers(res.headers);
-      h.delete("transfer-encoding");
+      h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
       h.set("x-proxy-sig", "v9-undici");
       return new Response(res.body, { status: res.status, headers: h });
     } catch (e: any) {
