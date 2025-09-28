@@ -121,7 +121,9 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
     const url = buildFuncUrl(path, key);
 
     // 霆｢騾√・繝・ム・育ｦ∵ｭ｢繝倥ャ繝縺ｯ關ｽ縺ｨ縺呻ｼ・    const headersObj = sanitizeToObject(req.headers);
-    if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・ム縺ｫ繧りｼ峨○繧具ｼ・    delete headersObj["Expect"]; // 蠢ｵ縺ｮ縺溘ａ螟ｧ譁・ｭ礼沿繧る勁蜴ｻ
+    
+    headersObj["accept-encoding"] = "identity";
+if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・ム縺ｫ繧りｼ峨○繧具ｼ・    delete headersObj["Expect"]; // 蠢ｵ縺ｮ縺溘ａ螟ｧ譁・ｭ礼沿繧る勁蜴ｻ
     delete headersObj["expect"];
 
     // Body 繧呈ｭ｣隕丞喧
