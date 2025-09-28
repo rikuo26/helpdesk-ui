@@ -1,6 +1,5 @@
 export type Json = any;
 
-/** ------ 共通: /api/* への相対パス化と fetch ------ */
 export function toApiPath(path: string): string {
   let p = (path || "").trim();
   if (!p.startsWith("/")) p = "/" + p;
@@ -8,15 +7,19 @@ export function toApiPath(path: string): string {
   return p;
 }
 
+/** 低レベル共通フェッチ（JSON／Text自動判定） */
 export async function apiFetch<T = any>(path: string, init: RequestInit = {}): Promise<T> {
   const url = toApiPath(path);
   const headers = new Headers(init.headers || {});
-  headers.delete("cookie"); // Functions へ送らない
+  headers.delete("cookie"); // Functions への不要な Cookie は落とす
   const res = await fetch(url, { ...init, headers, cache: "no-store" });
 
   if (!res.ok) {
-    let msg = `${res.status} ${res.statusText}`;
-    try { const j = await res.clone().json(); if (j?.error) msg += `: ${j.error}`; } catch {}
+    let msg = `HTTP ${res.status}`;
+    try {
+      const j = await res.clone().json();
+      if (j?.error) msg += `: ${j.error}`;
+    } catch {}
     throw new Error(msg);
   }
   const ct = res.headers.get("content-type") || "";
@@ -24,71 +27,73 @@ export async function apiFetch<T = any>(path: string, init: RequestInit = {}): P
   return (await res.text()) as unknown as T;
 }
 
-/** ------ チケット型 ------ */
+/* ---------------------------------------------
+   旧UI互換の高レベルAPI（UI全体で使われる想定の関数名）
+   --------------------------------------------- */
+
+function isBodyInit(data: any): data is BodyInit {
+  return (
+    data instanceof FormData ||
+    typeof data === "string" ||
+    (typeof Blob !== "undefined" && data instanceof Blob) ||
+    (typeof ArrayBuffer !== "undefined" && data instanceof ArrayBuffer) ||
+    (typeof ArrayBuffer !== "undefined" && ArrayBuffer.isView && ArrayBuffer.isView(data))
+  );
+}
+
+export function apiGet<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  return apiFetch<T>(path, { ...init, method: "GET", headers });
+}
+
+export function apiDelete<T = any>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  return apiFetch<T>(path, { ...init, method: "DELETE", headers });
+}
+
+export function apiPost<T = any>(path: string, data?: any, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  let body: BodyInit | undefined;
+  if (data !== undefined && data !== null) {
+    if (isBodyInit(data)) body = data as BodyInit;
+    else { headers.set("content-type", "application/json"); body = JSON.stringify(data); }
+  }
+  return apiFetch<T>(path, { ...init, method: "POST", headers, body });
+}
+
+export function apiPatch<T = any>(path: string, data?: any, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  let body: BodyInit | undefined;
+  if (data !== undefined && data !== null) {
+    if (isBodyInit(data)) body = data as BodyInit;
+    else { headers.set("content-type", "application/json"); body = JSON.stringify(data); }
+  }
+  return apiFetch<T>(path, { ...init, method: "PATCH", headers, body });
+}
+
+export function apiPut<T = any>(path: string, data?: any, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers || {});
+  let body: BodyInit | undefined;
+  if (data !== undefined && data !== null) {
+    if (isBodyInit(data)) body = data as BodyInit;
+    else { headers.set("content-type", "application/json"); body = JSON.stringify(data); }
+  }
+  return apiFetch<T>(path, { ...init, method: "PUT", headers, body });
+}
+
+/* ---------------------------------------------
+   既存ページが直接呼んでいるチケット用の薄いラッパ
+   --------------------------------------------- */
 export type Ticket = {
-  id: string;
-  title: string;
-  description?: string | null;
-  status: string;
-  createdAt: string;
-  createdBy?: string | null;
+  id: string; title: string; description?: string | null;
+  status: string; createdAt: string; createdBy?: string | null;
 };
 
-/** ------ 既存 UI が参照するヘルパーを提供（名前は昔のまま） ------ */
-export async function getTickets(scope: "all" | "mine" = "all"): Promise<Ticket[]> {
-  return apiFetch<Ticket[]>(`/tickets?scope=${encodeURIComponent(scope)}`);
-}
-export async function listTickets(params?: { scope?: "all" | "mine" }) {
-  return getTickets(params?.scope ?? "all");
-}
+export const getTicket = (id: string) =>
+  apiGet<Ticket>(`/tickets/${encodeURIComponent(id)}`);
 
-export async function createTicket(input: { title: string; description?: string | null; status?: string }): Promise<Ticket> {
-  return apiFetch<Ticket>("/tickets", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(input),
-  });
-}
+export const updateTicket = (id: string, payload: Partial<Ticket>) =>
+  apiPatch<Ticket>(`/tickets/${encodeURIComponent(id)}`, payload);
 
-export async function getTicket(id: string): Promise<Ticket> {
-  return apiFetch<Ticket>(`/tickets/${encodeURIComponent(id)}`);
-}
-
-export async function updateTicket(
-  id: string,
-  patch: Partial<Pick<Ticket, "title" | "description" | "status">>
-): Promise<Ticket> {
-  return apiFetch<Ticket>(`/tickets/${encodeURIComponent(id)}`, {
-    method: "PATCH",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(patch),
-  });
-}
-
-/**
- * 旧 UI が呼ぶ delete 用のダミー互換:
- * - Functions 側が DELETE 未実装のため 405 の場合は「done へ更新」で代替
- * - それ以外のエラーは投げる
- */
-export async function deleteTicket(id: string): Promise<void> {
-  try {
-    await apiFetch(`/tickets/${encodeURIComponent(id)}`, { method: "DELETE" as any });
-  } catch (e: any) {
-    const msg = String(e?.message || "");
-    if (msg.startsWith("405 ")) {
-      await updateTicket(id, { status: "done" }); // ソフトクローズ
-      return;
-    }
-    throw e;
-  }
-}
-
-/** 管理ダッシュボード用の薄いラッパ（使われなくても害はない） */
-export type TicketStats = { total:number; newToday:number; byStatus:Record<string,number>;
-  series:{ labels:string[]; counts:number[] } };
-export async function getTicketStats(days = 14): Promise<TicketStats> {
-  return apiFetch<TicketStats>(`/tickets/stats?days=${encodeURIComponent(String(days))}`);
-}
-export async function getTicketStatsByUsers(days = 14): Promise<any[]> {
-  return apiFetch<any[]>(`/tickets/stats/users?days=${encodeURIComponent(String(days))}`);
-}
+export const deleteTicket = (id: string) =>
+  apiDelete<void>(`/tickets/${encodeURIComponent(id)}`);
