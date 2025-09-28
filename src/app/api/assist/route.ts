@@ -1,6 +1,6 @@
-﻿import { proxyToFunc, runtime } from "../_proxy";
-export { runtime };
+export const runtime = "nodejs";
+import { proxyToFunc } from "../_proxy";
 
-export async function POST(req: Request) {
+export async function POST(req) {
   return proxyToFunc(req, "/api/assist");
 }

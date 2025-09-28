@@ -1,4 +1,4 @@
-﻿export const runtime = "nodejs";
+export const runtime = "nodejs";
 export async function GET() {
   return Response.json({
     FUNC_BASE: process.env.FUNC_BASE ?? null,

@@ -1,28 +1,16 @@
-import { proxyToFunc, runtime } from "../../_proxy";
-export { runtime };
+export const runtime = "nodejs";
+import { proxyToFunc } from "../../_proxy";
 
-// Next.js 15: context.params が Promise になる型推論
-export async function GET(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  const { id } = await params;
+export async function GET(req, { params }) {
+  const { id } = await params; // Next 15: params is Promise
   const u = new URL(req.url);
   return proxyToFunc(req, `/api/tickets/${id}` + (u.search || ""));
 }
-
-export async function PATCH(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req, { params }) {
   const { id } = await params;
   return proxyToFunc(req, `/api/tickets/${id}`);
 }
-
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req, { params }) {
   const { id } = await params;
   return proxyToFunc(req, `/api/tickets/${id}`);
 }
