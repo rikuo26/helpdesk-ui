@@ -1,7 +1,7 @@
 import TicketsGrid from "@/components/TicketsGrid";
-import { apiFetch } from "@/lib/api";
+import { apiGet } from "@/lib/api";
 
-type Stats = { total:number; newToday:number; byStatus:Record<string,number>; series:{ labels:string[]; counts:number[] } };
+type Stats = { total:number; newToday:number; byStatus:Record<string,number>; series?:{ labels:string[]; counts:number[] } };
 
 function Sparkline({ counts }: { counts:number[] }) {
   const w = 160, h = 36, p = 2;
@@ -14,8 +14,8 @@ function Sparkline({ counts }: { counts:number[] }) {
 
 export default async function AdminTicketsPage() {
   const [stats, users] = await Promise.all([
-    apiFetch<Stats>("/tickets/stats?days=14"),
-    apiFetch<any[]>("/tickets/stats/users?days=14"),
+    apiGet<Stats>("/tickets/stats?days=14", { fallback: { total:0, newToday:0, byStatus:{}, series:{ labels:[], counts:[] } } }),
+    apiGet<any[]>("/tickets/stats/users?days=14", { fallback: [] }),
   ]);
 
   return (
@@ -25,25 +25,25 @@ export default async function AdminTicketsPage() {
       <section style={{ display:"grid", gridTemplateColumns:"repeat(3, minmax(0,1fr))", gap:12 }}>
         <div style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
           <div style={{ color:"#64748b", fontSize:12 }}>総件数</div>
-          <div style={{ fontSize:28, fontWeight:700 }}>{stats?.total ?? 0}</div>
+          <div style={{ fontSize:28, fontWeight:700 }}>{stats.total}</div>
         </div>
         <div style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
           <div style={{ color:"#64748b", fontSize:12 }}>本日新規</div>
-          <div style={{ fontSize:28, fontWeight:700 }}>{stats?.newToday ?? 0}</div>
+          <div style={{ fontSize:28, fontWeight:700 }}>{stats.newToday}</div>
         </div>
         <div style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
           <div style={{ color:"#64748b", fontSize:12 }}>14日スパークライン</div>
-          <Sparkline counts={stats?.series?.counts ?? []} />
+          <Sparkline counts={stats.series?.counts ?? []} />
         </div>
       </section>
 
       <section>
         <div style={{ color:"#64748b", fontSize:12, marginBottom:6 }}>ステータス内訳</div>
         <div>
-          {Object.entries(stats?.byStatus || {}).map(([k,v]) => (
+          {Object.entries(stats.byStatus || {}).map(([k,v]) => (
             <span key={k} style={{ marginRight:12 }}>{k}: <strong>{v}</strong></span>
           ))}
-          {!Object.keys(stats?.byStatus || {}).length && <span>—</span>}
+          {!Object.keys(stats.byStatus || {}).length && <span>—</span>}
         </div>
       </section>
 
