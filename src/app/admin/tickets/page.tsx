@@ -1,5 +1,8 @@
 import TicketsGrid from "@/components/TicketsGrid";
 import { apiGet } from "@/lib/api";
+import SimpleLineChart from "@/components/charts/SimpleLineChart";
+import SimpleDonutChart from "@/components/charts/SimpleDonutChart";
+import SimpleBarChart from "@/components/charts/SimpleBarChart";
 
 type Stats = {
   total: number;
@@ -8,15 +11,6 @@ type Stats = {
   series?: { labels: string[]; counts: number[] };
 };
 type UsersRow = { owner?: string; name?: string; total?: number; open?: number; in_progress?: number; done?: number };
-
-function Sparkline({ counts }: { counts: number[] }) {
-  const w = 180, h = 40, p = 2;
-  const xs = counts.length ? counts : [0];
-  const max = Math.max(...xs, 1);
-  const step = (w - p*2) / (xs.length - 1 || 1);
-  const pts = xs.map((v,i)=>`${p + i*step},${h - p - (v/max)*(h - p*2)}`).join(" ");
-  return <svg width={w} height={h}><polyline fill="none" stroke="#2563eb" strokeWidth="2" points={pts} /></svg>;
-}
 
 export default async function AdminTicketsPage() {
   const [stats, users] = await Promise.all([
@@ -32,7 +26,16 @@ export default async function AdminTicketsPage() {
     ? Math.round(stats.series.counts.reduce((a,b)=>a+b,0) / stats.series.counts.length)
     : 0;
 
-  const topUsers = [...users].sort((a,b)=>(b.total??0)-(a.total??0)).slice(0,5);
+  const topUsers = [...users]
+    .map(u => ({ label: (u.name || u.owner || "—").slice(0,6), value: u.total ?? 0 }))
+    .sort((a,b)=>b.value-a.value)
+    .slice(0,5);
+
+  const donutItems = [
+    { label: "open", value: open },
+    { label: "in_progress", value: prog },
+    { label: "done", value: done },
+  ];
 
   return (
     <main style={{ padding: 16, display:"grid", gap:16 }}>
@@ -58,48 +61,35 @@ export default async function AdminTicketsPage() {
         </div>
       </section>
 
-      {/* ステータス内訳 + スパークライン */}
-      <section style={{ display:"grid", gridTemplateColumns:"1fr 200px", gap:12 }}>
-        <div>
+      {/* チャート群 */}
+      <section style={{ display:"grid", gridTemplateColumns:"320px 1fr", gap:16 }}>
+        {/* 左: ステータス内訳（ドーナツ） */}
+        <div style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
           <div style={{ color:"#64748b", fontSize:12, marginBottom:6 }}>ステータス内訳</div>
-          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
-            <span style={{ padding:"4px 8px", border:"1px solid #e5e7eb", borderRadius:999 }}>open: <b>{open}</b></span>
-            <span style={{ padding:"4px 8px", border:"1px solid #e5e7eb", borderRadius:999 }}>in_progress: <b>{prog}</b></span>
-            <span style={{ padding:"4px 8px", border:"1px solid #e5e7eb", borderRadius:999 }}>done: <b>{done}</b></span>
+          <div style={{ display:"grid", gridTemplateColumns:"160px 1fr", alignItems:"center" }}>
+            <SimpleDonutChart items={donutItems} />
+            <div style={{ display:"grid", gap:4 }}>
+              {donutItems.map((d,i)=>(
+                <div key={i} style={{ display:"flex", justifyContent:"space-between" }}>
+                  <span style={{ color:"#475569" }}>{d.label}</span>
+                  <b>{d.value}</b>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-        <div>
-          <div style={{ color:"#64748b", fontSize:12, marginBottom:6 }}>14日スパークライン</div>
-          <Sparkline counts={stats.series?.counts ?? []} />
+
+        {/* 右: 14日推移（折れ線） */}
+        <div style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
+          <div style={{ color:"#64748b", fontSize:12, marginBottom:6 }}>件数推移（14日）</div>
+          <SimpleLineChart data={stats.series?.counts ?? []} height={160} />
         </div>
       </section>
 
-      {/* トップ担当者 */}
-      <section>
+      {/* 下段: トップ担当者（棒） */}
+      <section style={{ border:"1px solid #e5e7eb", borderRadius:8, padding:12 }}>
         <div style={{ color:"#64748b", fontSize:12, marginBottom:6 }}>トップ担当者（14日）</div>
-        <table style={{ width:"100%", borderCollapse:"collapse" }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign:"left", borderBottom:"1px solid #ddd", padding:8 }}>担当</th>
-              <th style={{ textAlign:"right", borderBottom:"1px solid #ddd", padding:8 }}>総数</th>
-              <th style={{ textAlign:"right", borderBottom:"1px solid #ddd", padding:8 }}>open</th>
-              <th style={{ textAlign:"right", borderBottom:"1px solid #ddd", padding:8 }}>in_progress</th>
-              <th style={{ textAlign:"right", borderBottom:"1px solid #ddd", padding:8 }}>done</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topUsers.map((r,i)=>(
-              <tr key={i}>
-                <td style={{ borderBottom:"1px solid #eee", padding:8 }}>{r.name || r.owner || "—"}</td>
-                <td style={{ borderBottom:"1px solid #eee", padding:8, textAlign:"right" }}>{r.total ?? 0}</td>
-                <td style={{ borderBottom:"1px solid #eee", padding:8, textAlign:"right" }}>{r.open ?? 0}</td>
-                <td style={{ borderBottom:"1px solid #eee", padding:8, textAlign:"right" }}>{r.in_progress ?? 0}</td>
-                <td style={{ borderBottom:"1px solid #eee", padding:8, textAlign:"right" }}>{r.done ?? 0}</td>
-              </tr>
-            ))}
-            {!topUsers.length && <tr><td colSpan={5} style={{ padding:12, color:"#666" }}>データがありません</td></tr>}
-          </tbody>
-        </table>
+        <SimpleBarChart rows={topUsers} height={200} />
       </section>
 
       {/* 一覧 */}
