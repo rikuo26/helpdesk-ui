@@ -1,4 +1,4 @@
-/** Azure Functions 縺ｸ縺ｮ繝励Ο繧ｭ繧ｷ蜈ｱ騾夲ｼ亥・欧繝ｻ蝙句ｮ牙・ + undici繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ譛邨ら沿・・ *  - 螳溯｡梧凾 env 縺ｯ bracket 險俶ｳ輔〒隱ｭ繧・・WA縺ｧ繧ら｢ｺ螳滂ｼ・ *  - hop-by-hop 遲峨・遖∵ｭ｢繝倥ャ繝繝ｼ繧帝勁蜴ｻ・・xpect:100-continue 繧貞ｿ・★關ｽ縺ｨ縺呻ｼ・ *  - JSON 縺ｯ譁・ｭ怜・縺ｮ縺ｾ縺ｾ貂｡縺呻ｼ・ontent-Type: application/json 繧呈・遉ｺ・・ *  - fetch(undici) 縺悟､ｱ謨励＠縺溘ｉ node:http/https 縺ｧ蜀埼・ *  - x-proxy-sig 縺ｧ邨瑚ｷｯ繧貞庄隕門喧・・9-undici / v9-fallback-nodehttps / v9-error・・ */
+/** Azure Functions 邵ｺ・ｸ邵ｺ・ｮ郢晏干ﾎ溽ｹｧ・ｭ郢ｧ・ｷ陷茨ｽｱ鬨ｾ螟ｲ・ｼ莠･・ｰ繝ｻ谺ｧ郢晢ｽｻ陜吝唱・ｮ迚吶・ + undici郢晁ｼ斐°郢晢ｽｼ郢晢ｽｫ郢晁・繝｣郢ｧ・ｯ隴崢驍ｨ繧画ｲｿ繝ｻ繝ｻ *  - 陞ｳ貅ｯ・｡譴ｧ蜃ｾ env 邵ｺ・ｯ bracket 髫ｪ菫ｶ・ｳ霈斐帝坡・ｭ郢ｧﾂ繝ｻ繝ｻWA邵ｺ・ｧ郢ｧ繧会ｽ｢・ｺ陞ｳ貊ゑｽｼ繝ｻ *  - hop-by-hop 驕ｲ蟲ｨ繝ｻ驕問扱・ｭ・｢郢晏･繝｣郢敖郢晢ｽｼ郢ｧ蟶晏求陷ｴ・ｻ繝ｻ繝ｻxpect:100-continue 郢ｧ雋橸ｽｿ繝ｻ笘・梨・ｽ邵ｺ・ｨ邵ｺ蜻ｻ・ｼ繝ｻ *  - JSON 邵ｺ・ｯ隴√・・ｭ諤懊・邵ｺ・ｮ邵ｺ・ｾ邵ｺ・ｾ雋ゑｽ｡邵ｺ蜻ｻ・ｼ繝ｻontent-Type: application/json 郢ｧ蜻医・驕会ｽｺ繝ｻ繝ｻ *  - fetch(undici) 邵ｺ謔滂ｽ､・ｱ隰ｨ蜉ｱ・邵ｺ貅假ｽ・node:http/https 邵ｺ・ｧ陷蝓ｼﾂ繝ｻ *  - x-proxy-sig 邵ｺ・ｧ驍ｨ迹夲ｽｷ・ｯ郢ｧ雋槫ｺ・囎髢蝟ｧ繝ｻ繝ｻ9-undici / v9-fallback-nodehttps / v9-error繝ｻ繝ｻ */
 
 import http from "node:http";
 import https from "node:https";
@@ -17,7 +17,7 @@ function isJson(ct: string): boolean {
   return /\bapplication\/json\b/i.test(ct);
 }
 
-/** 霆｢騾√＠縺ｪ縺・ｼ医☆繧九→螢翫ｌ繧具ｼ峨・繝・ム繝ｼ */
+/** 髴・ｽ｢鬨ｾ竏夲ｼ邵ｺ・ｪ邵ｺ繝ｻ・ｼ蛹ｻ笘・ｹｧ荵昶・陞｢鄙ｫ・檎ｹｧ蜈ｷ・ｼ蟲ｨ繝ｻ郢昴・繝郢晢ｽｼ */
 const DROP_HEADERS = new Set([
   "host",
   "connection",
@@ -30,9 +30,9 @@ const DROP_HEADERS = new Set([
   "upgrade",
   "accept-encoding",
   "content-length",
-  "expect", // 竊・iwr 縺御ｻ倥￠繧九→ undici 縺瑚誠縺｡繧・]);
+  "expect", // 遶翫・iwr 邵ｺ蠕｡・ｻ蛟･・郢ｧ荵昶・ undici 邵ｺ迹夊ｪ邵ｺ・｡郢ｧ繝ｻ]);
 
-/** Headers 竊・邏縺ｮ繧ｪ繝悶ず繧ｧ繧ｯ繝茨ｼ郁誠縺ｨ縺吶∋縺阪・關ｽ縺ｨ縺呻ｼ・*/
+/** Headers 遶翫・驍擾｣ｰ邵ｺ・ｮ郢ｧ・ｪ郢晄じ縺夂ｹｧ・ｧ郢ｧ・ｯ郢晁肩・ｼ驛∬ｪ邵ｺ・ｨ邵ｺ蜷ｶ竏狗ｸｺ髦ｪ繝ｻ髣懶ｽｽ邵ｺ・ｨ邵ｺ蜻ｻ・ｼ繝ｻ*/
 function sanitizeToObject(src: Headers): Record<string, string> {
   const obj: Record<string, string> = {};
   for (const [k, v] of src) {
@@ -46,9 +46,9 @@ function sanitizeToObject(src: Headers): Record<string, string> {
 function chooseFuncKey(req: Request): string | undefined {
   const u = new URL(req.url);
   return (
-    u.searchParams.get("code") ||                 // 繧ｯ繧ｨ繝ｪ・医ユ繧ｹ繝育畑・・    req.headers.get("x-functions-key") ||         // 繝倥ャ繝・医ユ繧ｹ繝育畑・・    req.headers.get("x-func-key") ||
+    u.searchParams.get("code") ||                 // 郢ｧ・ｯ郢ｧ・ｨ郢晢ｽｪ繝ｻ蛹ｻ繝ｦ郢ｧ・ｹ郢晁ご逡代・繝ｻ    req.headers.get("x-functions-key") ||         // 郢晏･繝｣郢敖繝ｻ蛹ｻ繝ｦ郢ｧ・ｹ郢晁ご逡代・繝ｻ    req.headers.get("x-func-key") ||
     req.headers.get("x-api-key") ||
-    process.env["FUNC_KEY"] ||                    // SWA 縺ｮ險ｭ螳・    process.env["API_KEY"] ||
+    process.env["FUNC_KEY"] ||                    // SWA 邵ｺ・ｮ髫ｪ・ｭ陞ｳ繝ｻ    process.env["API_KEY"] ||
     process.env["ASSIST_FUNC_KEY"] ||
     undefined
   );
@@ -59,10 +59,10 @@ function buildFuncUrl(path: string, key?: string): string {
   if (!base) throw new Error("FUNC_BASE / API_BASE / NEXT_PUBLIC_API_BASE_URL is empty");
   const norm = base.endsWith("/") ? base.slice(0, -1) : base;
   const url = new URL(path, norm);
-  if (key) url.searchParams.set("code", key); // 蜀鈴聞蛹厄ｼ医け繧ｨ繝ｪ縺ｫ繧りｼ峨○繧具ｼ・  return url.toString();
+  if (key) url.searchParams.set("code", key); // 陷驤ｴ閨櫁峪蜴・ｽｼ蛹ｻ縺醍ｹｧ・ｨ郢晢ｽｪ邵ｺ・ｫ郢ｧ繧奇ｽｼ蟲ｨ笳狗ｹｧ蜈ｷ・ｼ繝ｻ  return url.toString();
 }
 
-/** undici(fetch) 繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ */
+/** undici(fetch) 郢晁ｼ斐°郢晢ｽｼ郢晢ｽｫ郢晁・繝｣郢ｧ・ｯ */
 async function nodeRequest(
   urlStr: string,
   init: { method: string; headers: Record<string,string>; body?: string | ArrayBuffer }
@@ -102,7 +102,7 @@ async function nodeRequest(
             if (Array.isArray(v)) h.set(k, v.join(", "));
             else if (typeof v === "string") h.set(k, v);
           }
-          h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length");
+          h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
           h.set("x-proxy-sig", "v10-fallback-nodehttps");
           resolve(new Response(buf, { status: res.statusCode || 200, headers: h }));
         });
@@ -120,16 +120,16 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
     const key = chooseFuncKey(req);
     const url = buildFuncUrl(path, key);
 
-    // 霆｢騾√・繝・ム・育ｦ∵ｭ｢繝倥ャ繝縺ｯ關ｽ縺ｨ縺呻ｼ・    const headersObj = sanitizeToObject(req.headers);
-    if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・ム縺ｫ繧りｼ峨○繧具ｼ・    delete headersObj["Expect"]; // 蠢ｵ縺ｮ縺溘ａ螟ｧ譁・ｭ礼沿繧る勁蜴ｻ
+    // 髴・ｽ｢鬨ｾ竏壹・郢昴・繝繝ｻ閧ｲ・ｦ竏ｵ・ｭ・｢郢晏･繝｣郢敖邵ｺ・ｯ髣懶ｽｽ邵ｺ・ｨ邵ｺ蜻ｻ・ｼ繝ｻ    const headersObj = sanitizeToObject(req.headers);
+    headersObj["accept-encoding"]="identity"; if (key) headersObj["x-functions-key"] = key; // 陷驤ｴ閨櫁峪蜴・ｽｼ蛹ｻ繝ｻ郢昴・繝邵ｺ・ｫ郢ｧ繧奇ｽｼ蟲ｨ笳狗ｹｧ蜈ｷ・ｼ繝ｻ    delete headersObj["Expect"]; // 陟｢・ｵ邵ｺ・ｮ邵ｺ貅假ｽ∬棔・ｧ隴√・・ｭ遉ｼ豐ｿ郢ｧ繧句求陷ｴ・ｻ
     delete headersObj["expect"];
 
-    // Body 繧呈ｭ｣隕丞喧
+    // Body 郢ｧ蜻茨ｽｭ・｣髫穂ｸ槫密
     let bodyInit: string | ArrayBuffer | undefined;
     if (method !== "GET" && method !== "HEAD") {
       const ct = req.headers.get("content-type") || "";
       if (isJson(ct)) {
-        // JSON 縺ｯ譁・ｭ怜・縺ｧ・・harset 縺ｯ莉倥￠縺ｪ縺・ｼ・        const text = await req.text();
+        // JSON 邵ｺ・ｯ隴√・・ｭ諤懊・邵ｺ・ｧ繝ｻ繝ｻharset 邵ｺ・ｯ闔牙･・邵ｺ・ｪ邵ｺ繝ｻ・ｼ繝ｻ        const text = await req.text();
         bodyInit = text && text.length ? text : "{}";
         headersObj["content-type"] = "application/json";
       } else {
@@ -137,7 +137,7 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
       }
     }
 
-    // 縺ｾ縺・fetch(undici)
+    // 邵ｺ・ｾ邵ｺ繝ｻfetch(undici)
     try {
       const res = await fetch(url, {
         method,
@@ -145,11 +145,11 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
         body: bodyInit as any,
       });
       const h = new Headers(res.headers);
-      h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length");
+      h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
       h.set("x-proxy-sig", "v10-undici");
       return new Response(res.body, { status: res.status, headers: h });
     } catch (e: any) {
-      // e.cause.code 縺ｫ蜈･繧九こ繝ｼ繧ｹ繧呈鏡縺・      const code = e?.code || e?.cause?.code || "";
+      // e.cause.code 邵ｺ・ｫ陷茨ｽ･郢ｧ荵昴％郢晢ｽｼ郢ｧ・ｹ郢ｧ蜻磯升邵ｺ繝ｻ      const code = e?.code || e?.cause?.code || "";
       const msg  = String(e?.message || e?.cause?.message || "");
       if (code === "UND_ERR_NOT_SUPPORTED" || /UND_ERR_NOT_SUPPORTED|not supported/i.test(msg)) {
         const res = await nodeRequest(url, { method, headers: headersObj, body: bodyInit });
