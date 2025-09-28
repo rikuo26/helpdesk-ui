@@ -1,3 +1,4 @@
+import type { PageProps } from "next";
 import { getTicket } from "@/lib/api";
 
 type Ticket = {
@@ -10,10 +11,13 @@ type Ticket = {
 };
 
 export default async function TicketDetailPage(
-  { params }: { params: { id: string } }
+  { params }: PageProps<{ id: string }>
 ) {
-  // 取得に失敗しても null にフォールバックしてページが落ちないようにする
-  const raw = (await getTicket(params.id).catch(() => null)) as any;
+  // Next 15: params は Promise。await してから使う
+  const { id } = await params;
+
+  // 取得失敗でもページは落とさない
+  const raw = (await getTicket(id).catch(() => null)) as any;
   const t: Ticket | null = raw && typeof raw === "object" ? (raw as Ticket) : null;
 
   return (
