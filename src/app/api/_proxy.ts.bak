@@ -1,4 +1,4 @@
-﻿/** Azure Functions 縺ｸ縺ｮ繝励Ο繧ｭ繧ｷ蜈ｱ騾夲ｼ亥・欧繝ｻ蝙句ｮ牙・ + undici繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ譛邨ら沿・・ *  - 螳溯｡梧凾 env 縺ｯ bracket 險俶ｳ輔〒隱ｭ繧・・WA縺ｧ繧ら｢ｺ螳滂ｼ・ *  - hop-by-hop 遲峨・遖∵ｭ｢繝倥ャ繝繝ｼ繧帝勁蜴ｻ・・xpect:100-continue 繧貞ｿ・★關ｽ縺ｨ縺呻ｼ・ *  - JSON 縺ｯ譁・ｭ怜・縺ｮ縺ｾ縺ｾ貂｡縺呻ｼ・ontent-Type: application/json 繧呈・遉ｺ・・ *  - fetch(undici) 縺悟､ｱ謨励＠縺溘ｉ node:http/https 縺ｧ蜀埼・ *  - x-proxy-sig 縺ｧ邨瑚ｷｯ繧貞庄隕門喧・・9-undici / v9-fallback-nodehttps / v9-error・・ */
+/** Azure Functions 縺ｸ縺ｮ繝励Ο繧ｭ繧ｷ蜈ｱ騾夲ｼ亥・欧繝ｻ蝙句ｮ牙・ + undici繝輔か繝ｼ繝ｫ繝舌ャ繧ｯ譛邨ら沿・・ *  - 螳溯｡梧凾 env 縺ｯ bracket 險俶ｳ輔〒隱ｭ繧・・WA縺ｧ繧ら｢ｺ螳滂ｼ・ *  - hop-by-hop 遲峨・遖∵ｭ｢繝倥ャ繝繝ｼ繧帝勁蜴ｻ・・xpect:100-continue 繧貞ｿ・★關ｽ縺ｨ縺呻ｼ・ *  - JSON 縺ｯ譁・ｭ怜・縺ｮ縺ｾ縺ｾ貂｡縺呻ｼ・ontent-Type: application/json 繧呈・遉ｺ・・ *  - fetch(undici) 縺悟､ｱ謨励＠縺溘ｉ node:http/https 縺ｧ蜀埼・ *  - x-proxy-sig 縺ｧ邨瑚ｷｯ繧貞庄隕門喧・・9-undici / v9-fallback-nodehttps / v9-error・・ */
 
 import http from "node:http";
 import https from "node:https";
@@ -102,8 +102,8 @@ async function nodeRequest(
             if (Array.isArray(v)) h.set(k, v.join(", "));
             else if (typeof v === "string") h.set(k, v);
           }
-          h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
-          h.set("x-proxy-sig", "v9-fallback-nodehttps");
+          h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length");
+          h.set("x-proxy-sig", "v10-fallback-nodehttps");
           resolve(new Response(buf, { status: res.statusCode || 200, headers: h }));
         });
       }
@@ -121,9 +121,7 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
     const url = buildFuncUrl(path, key);
 
     // 霆｢騾√・繝・ム・育ｦ∵ｭ｢繝倥ャ繝縺ｯ關ｽ縺ｨ縺呻ｼ・    const headersObj = sanitizeToObject(req.headers);
-    
-    headersObj["accept-encoding"] = "identity";
-if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・ム縺ｫ繧りｼ峨○繧具ｼ・    delete headersObj["Expect"]; // 蠢ｵ縺ｮ縺溘ａ螟ｧ譁・ｭ礼沿繧る勁蜴ｻ
+    if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・ム縺ｫ繧りｼ峨○繧具ｼ・    delete headersObj["Expect"]; // 蠢ｵ縺ｮ縺溘ａ螟ｧ譁・ｭ礼沿繧る勁蜴ｻ
     delete headersObj["expect"];
 
     // Body 繧呈ｭ｣隕丞喧
@@ -147,8 +145,8 @@ if (key) headersObj["x-functions-key"] = key; // 蜀鈴聞蛹厄ｼ医・繝・�
         body: bodyInit as any,
       });
       const h = new Headers(res.headers);
-      h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length"); h.delete("content-encoding"); h.delete("content-length");
-      h.set("x-proxy-sig", "v9-undici");
+      h.delete("transfer-encoding"); h.delete("content-encoding"); h.delete("content-length");
+      h.set("x-proxy-sig", "v10-undici");
       return new Response(res.body, { status: res.status, headers: h });
     } catch (e: any) {
       // e.cause.code 縺ｫ蜈･繧九こ繝ｼ繧ｹ繧呈鏡縺・      const code = e?.code || e?.cause?.code || "";

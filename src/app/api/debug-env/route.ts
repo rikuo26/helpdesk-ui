@@ -7,3 +7,4 @@ export async function GET() {
     has_FUNC_KEY: Boolean(process.env["FUNC_KEY"] || process.env["API_KEY"]),
   });
 }
+

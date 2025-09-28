@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+﻿import { NextResponse } from "next/server";
 import { readProxyLogTail } from "@/lib/serverLogger";
 
 export const dynamic = "force-dynamic";

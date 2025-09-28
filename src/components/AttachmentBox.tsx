@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useCallback, useRef, useState } from "react";
 
 export type Uploaded = {
@@ -53,14 +53,13 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
         preview: URL.createObjectURL(f),
         status: badType || badSize ? "error" : "queued",
         progress: 0,
-        error: badType ? "JPEG/PNG/WebP のみ対応" : badSize ? "サイズ上限は 10MB です" : undefined,
+        error: badType ? "JPEG/PNG/WebP 縺ｮ縺ｿ蟇ｾ蠢・ : badSize ? "繧ｵ繧､繧ｺ荳企剞縺ｯ 10MB 縺ｧ縺・ : undefined,
       };
     });
 
     setItems((prev) => [...prev, ...toAdd]);
 
-    // 画像寸法だけ非同期で取得
-    for (const it of toAdd) {
+    // 逕ｻ蜒丞ｯｸ豕輔□縺鷹撼蜷梧悄縺ｧ蜿門ｾ・    for (const it of toAdd) {
       if (it.status === "queued") {
         try {
           const { width, height } = await getImageSize(it.file);
@@ -90,8 +89,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
   async function uploadOne(d: Draft): Promise<Draft> {
     if (d.status !== "queued") return d;
 
-    // MOCK: 即時で完了
-    if (MODE === "mock") {
+    // MOCK: 蜊ｳ譎ゅ〒螳御ｺ・    if (MODE === "mock") {
       const uploaded: Uploaded = {
         url: d.preview,
         blobName: `mock/${crypto.randomUUID()}`,
@@ -107,7 +105,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
       return next;
     }
 
-    // REAL: /api/uploads/presign → SAS PUT
+    // REAL: /api/uploads/presign 竊・SAS PUT
     try {
       setItems((prev) => prev.map((x) => (x.id === d.id ? { ...x, status: "uploading", progress: 5 } : x)));
 
@@ -116,7 +114,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ filename: d.file.name, contentType: d.file.type }),
       });
-      if (!presign.ok) throw new Error("SAS 取得に失敗しました");
+      if (!presign.ok) throw new Error("SAS 蜿門ｾ励↓螟ｱ謨励＠縺ｾ縺励◆");
       const { putUrl, publicUrl, blobName } = await presign.json();
 
       await new Promise<void>((resolve, reject) => {
@@ -130,8 +128,8 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
             setItems((prev) => prev.map((x) => (x.id === d.id ? { ...x, progress: pct } : x)));
           }
         };
-        xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`PUT 失敗 (${xhr.status})`)));
-        xhr.onerror = () => reject(new Error("アップロードに失敗しました"));
+        xhr.onload  = () => (xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`PUT 螟ｱ謨・(${xhr.status})`)));
+        xhr.onerror = () => reject(new Error("繧｢繝・・繝ｭ繝ｼ繝峨↓螟ｱ謨励＠縺ｾ縺励◆"));
         xhr.send(d.file);
       });
 
@@ -149,7 +147,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
       onChanged(listed.filter((x) => x.uploaded).map((x) => x.uploaded!));
       return next;
     } catch (e: any) {
-      const next: Draft = { ...d, status: "error", error: e?.message || "アップロード失敗" };
+      const next: Draft = { ...d, status: "error", error: e?.message || "繧｢繝・・繝ｭ繝ｼ繝牙､ｱ謨・ };
       setItems((prev) => prev.map((x) => (x.id === d.id ? next : x)));
       return next;
     }
@@ -165,18 +163,17 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
     <div>
       <div className="mb-2 flex items-center justify-between">
         <div className="text-sm">
-          <span className="font-medium">添付（{uploadedCount}/{items.length} 完了）</span>
-          <span className="text-gray-500 ml-2">JPEG/PNG/WebP、最大 10MB・{MAX_FILES} ファイル</span>
+          <span className="font-medium">豺ｻ莉假ｼ・uploadedCount}/{items.length} 螳御ｺ・ｼ・/span>
+          <span className="text-gray-500 ml-2">JPEG/PNG/WebP縲∵怙螟ｧ 10MB繝ｻ{MAX_FILES} 繝輔ぃ繧､繝ｫ</span>
         </div>
         <div className="flex items-center gap-2">
           {items.some((x) => x.status === "queued") && MODE !== "mock" && (
             <button type="button" onClick={uploadAll} className="text-xs px-3 py-1 rounded border hover:bg-gray-50">
-              すべてアップロード
-            </button>
+              縺吶∋縺ｦ繧｢繝・・繝ｭ繝ｼ繝・            </button>
           )}
           {!!items.length && (
             <button type="button" onClick={clearAll} className="text-xs px-3 py-1 rounded border hover:bg-gray-50">
-              すべて削除
+              縺吶∋縺ｦ蜑企勁
             </button>
           )}
         </div>
@@ -191,8 +188,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
         role="button"
         tabIndex={0}
       >
-        ここにドラッグ＆ドロップ、またはクリックして選択
-        <input
+        縺薙％縺ｫ繝峨Λ繝・げ・・ラ繝ｭ繝・・縲√∪縺溘・繧ｯ繝ｪ繝・け縺励※驕ｸ謚・        <input
           ref={inputRef}
           type="file"
           accept={ACCEPT.join(",")}
@@ -209,7 +205,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
               <img src={it.preview} alt="" className="w-full h-28 object-cover rounded" />
               <div className="text-xs mt-1 truncate">{it.file.name}</div>
               {it.width && it.height && (
-                <div className="text-[11px] text-gray-500">{it.width}×{it.height}px</div>
+                <div className="text-[11px] text-gray-500">{it.width}ﾃ養it.height}px</div>
               )}
               {it.status !== "uploaded" && (
                 <div className="h-2 bg-gray-200 rounded mt-1">
@@ -218,8 +214,7 @@ export default function AttachmentBox({ onChanged }: { onChanged: (files: Upload
               )}
               {it.status === "error" && <div className="text-red-600 text-xs mt-1">{it.error}</div>}
               <button type="button" className="absolute top-1 right-1 bg-black/50 text-white text-xs rounded px-2" onClick={() => removeOne(it.id)}>
-                ×
-              </button>
+                ﾃ・              </button>
             </div>
           ))}
         </div>

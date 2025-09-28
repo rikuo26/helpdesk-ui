@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 export const dynamic = "force-dynamic";
 
 import React, { useEffect, useState } from "react";
@@ -21,12 +21,11 @@ export default function MyPage() {
   useEffect(() => {
     (async () => {
       try {
-        // Functions 側が無視しても問題ないクエリ。必要に応じて実装に合わせて変えてください。
-        const qs = new URLSearchParams({ scope: "mine" });
+        // Functions 蛛ｴ縺檎┌隕悶＠縺ｦ繧ょ撫鬘後↑縺・け繧ｨ繝ｪ縲ょｿ・ｦ√↓蠢懊§縺ｦ螳溯｣・↓蜷医ｏ縺帙※螟峨∴縺ｦ縺上□縺輔＞縲・        const qs = new URLSearchParams({ scope: "mine" });
         const r = await fetch(`/api/tickets?${qs.toString()}`, { cache: "no-store" });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const data = await r.json();
-        // 返却形が配列 or { items: [...] } のどちらでも拾えるようにしておく
+        // 霑泌唆蠖｢縺碁・蛻・or { items: [...] } 縺ｮ縺ｩ縺｡繧峨〒繧よ鏡縺医ｋ繧医≧縺ｫ縺励※縺翫￥
         const list: Ticket[] = Array.isArray(data) ? data : (data?.items ?? []);
         list.sort((a, b) => (b.updatedAt ?? "").localeCompare(a.updatedAt ?? ""));
         setItems(list);
@@ -38,16 +37,16 @@ export default function MyPage() {
     })();
   }, []);
 
-  if (loading) return <main className="p-6 text-sm text-gray-600">読み込み中…</main>;
-  if (error)   return <main className="p-6 text-sm text-red-700">エラー: {error}</main>;
+  if (loading) return <main className="p-6 text-sm text-gray-600">隱ｭ縺ｿ霎ｼ縺ｿ荳ｭ窶ｦ</main>;
+  if (error)   return <main className="p-6 text-sm text-red-700">繧ｨ繝ｩ繝ｼ: {error}</main>;
 
   const empty = items.length === 0;
 
   return (
     <main className="p-6">
-      <h1 className="text-lg font-semibold mb-4">マイページ</h1>
+      <h1 className="text-lg font-semibold mb-4">繝槭う繝壹・繧ｸ</h1>
 
-      {empty && <div className="text-sm text-gray-600">表示できるチケットはありません</div>}
+      {empty && <div className="text-sm text-gray-600">陦ｨ遉ｺ縺ｧ縺阪ｋ繝√こ繝・ヨ縺ｯ縺ゅｊ縺ｾ縺帙ｓ</div>}
 
       {!!items.length && (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -63,7 +62,7 @@ export default function MyPage() {
                 <p className="text-sm text-gray-700 line-clamp-3 mt-2">{t.description}</p>
               )}
               <div className="text-xs text-gray-500 mt-2">
-                作成: {t.createdAt ?? "-"} / 更新: {t.updatedAt ?? "-"}
+                菴懈・: {t.createdAt ?? "-"} / 譖ｴ譁ｰ: {t.updatedAt ?? "-"}
               </div>
             </Link>
           ))}

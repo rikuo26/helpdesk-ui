@@ -1,4 +1,4 @@
-/** Common API helpers */
+﻿/** Common API helpers */
 function abs(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   const base = process.env.NEXT_PUBLIC_SITE_URL || process.env.APP_ORIGIN || "http://localhost:3000";

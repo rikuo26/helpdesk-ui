@@ -31,3 +31,4 @@ export const isAuthenticated = (p?: ClientPrincipal | null) =>
 
 export const isAdmin = (p?: ClientPrincipal | null) =>
   !!p && p.userRoles?.includes("admin");
+

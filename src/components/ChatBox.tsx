@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Role = "user" | "assistant";
@@ -35,10 +35,10 @@ export default function ChatBox() {
 
   const listRef = useRef<HTMLDivElement>(null);
 
-  // スクロール & 永続化
+  // 繧ｹ繧ｯ繝ｭ繝ｼ繝ｫ & 豌ｸ邯壼喧
   useEffect(() => {
     try { sessionStorage.setItem(STORE_KEY, JSON.stringify(thread)); } catch {}
-    // 会話欄の一番下へ
+    // 莨夊ｩｱ谺・・荳逡ｪ荳九∈
     const el = listRef.current;
     if (el) el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [thread]);
@@ -55,7 +55,7 @@ export default function ChatBox() {
     setSending(true);
 
     try {
-      // 直近 16 件 + 今回で送信
+      // 逶ｴ霑・16 莉ｶ + 莉雁屓縺ｧ騾∽ｿ｡
       const payload = {
         messages: [...thread.slice(-16).map(m => ({ role: m.role, content: m.content })), { role: "user", content: text }],
       };
@@ -72,7 +72,7 @@ export default function ChatBox() {
       }
 
       const data = await r.json().catch(() => ({}));
-      const reply = (data?.reply ?? "").toString().trim() || "すみません、回答を生成できませんでした。";
+      const reply = (data?.reply ?? "").toString().trim() || "縺吶∩縺ｾ縺帙ｓ縲∝屓遲斐ｒ逕滓・縺ｧ縺阪∪縺帙ｓ縺ｧ縺励◆縲・;
 
       const aiMsg: Message = { id: crypto.randomUUID(), role: "assistant", content: reply, ts: Date.now() };
       setThread((prev) => [...prev, aiMsg]);
@@ -80,7 +80,7 @@ export default function ChatBox() {
       const aiMsg: Message = {
         id: crypto.randomUUID(),
         role: "assistant",
-        content: `エラー: ${e?.message || "送信に失敗しました。"}`,
+        content: `繧ｨ繝ｩ繝ｼ: ${e?.message || "騾∽ｿ｡縺ｫ螟ｱ謨励＠縺ｾ縺励◆縲・}`,
         ts: Date.now(),
       };
       setThread((prev) => [...prev, aiMsg]);
@@ -103,21 +103,20 @@ export default function ChatBox() {
 
   return (
     <section className="border rounded-lg p-3 bg-white">
-      {/* 見出し + 説明 */}
+      {/* 隕句・縺・+ 隱ｬ譏・*/}
       <div className="mb-3">
-        <div className="font-semibold">AI 相談チャット（β）</div>
+        <div className="font-semibold">AI 逶ｸ隲・メ繝｣繝・ヨ・夷ｲ・・/div>
         <div className="text-xs text-gray-500">
-          こちらからもサポートできます。AI が回答します。例）VPNに接続できない / Outlookで添付が開けない、など。
-        </div>
+          縺薙■繧峨°繧峨ｂ繧ｵ繝昴・繝医〒縺阪∪縺吶・I 縺悟屓遲斐＠縺ｾ縺吶ゆｾ具ｼ鰻PN縺ｫ謗･邯壹〒縺阪↑縺・/ Outlook縺ｧ豺ｻ莉倥′髢九￠縺ｪ縺・√↑縺ｩ縲・        </div>
       </div>
 
-      {/* 入力（上部固定） */}
+      {/* 蜈･蜉幢ｼ井ｸ企Κ蝗ｺ螳夲ｼ・*/}
       <div className="sticky top-0 bg-white z-10">
         <textarea
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={onKeyDown}
-          placeholder="質問を入力（Enterで送信 / Shift+Enterで改行）"
+          placeholder="雉ｪ蝠上ｒ蜈･蜉幢ｼ・nter縺ｧ騾∽ｿ｡ / Shift+Enter縺ｧ謾ｹ陦鯉ｼ・
           autoComplete="off"
           rows={3}
           className="w-full border rounded-lg p-2 text-sm"
@@ -129,27 +128,26 @@ export default function ChatBox() {
             disabled={!canSend}
             className="ml-auto px-3 py-1 rounded bg-blue-600 text-white text-sm disabled:opacity-50"
           >
-            送信
+            騾∽ｿ｡
           </button>
           <button
             type="button"
             onClick={clearAll}
             disabled={sending || thread.length === 0}
             className="px-3 py-1 rounded border text-sm disabled:opacity-50 hover:bg-gray-50"
-            title="会話をクリア"
+            title="莨夊ｩｱ繧偵け繝ｪ繧｢"
           >
-            クリア
+            繧ｯ繝ｪ繧｢
           </button>
-          {sending && <span className="text-xs text-gray-500">送信中…</span>}
+          {sending && <span className="text-xs text-gray-500">騾∽ｿ｡荳ｭ窶ｦ</span>}
         </div>
       </div>
 
-      {/* 会話（下に溜まる） */}
+      {/* 莨夊ｩｱ・井ｸ九↓貅懊∪繧具ｼ・*/}
       <div ref={listRef} className="mt-3 h-80 sm:h-96 overflow-y-auto space-y-2 pr-1">
         {thread.length === 0 && (
           <div className="text-xs text-gray-400">
-            ここに会話が表示されます。まずは上の入力欄に質問をどうぞ。
-          </div>
+            縺薙％縺ｫ莨夊ｩｱ縺瑚｡ｨ遉ｺ縺輔ｌ縺ｾ縺吶ゅ∪縺壹・荳翫・蜈･蜉帶ｬ・↓雉ｪ蝠上ｒ縺ｩ縺・◇縲・          </div>
         )}
         {thread.map((m) => (
           <Bubble key={m.id} msg={m} />
@@ -157,8 +155,7 @@ export default function ChatBox() {
       </div>
 
       <div className="mt-2 text-[11px] text-gray-500">
-        ※ AI の回答には誤りが含まれる場合があります。重要な内容は担当者へご確認ください。
-      </div>
+        窶ｻ AI 縺ｮ蝗樒ｭ斐↓縺ｯ隱､繧翫′蜷ｫ縺ｾ繧後ｋ蝣ｴ蜷医′縺ゅｊ縺ｾ縺吶る㍾隕√↑蜀・ｮｹ縺ｯ諡・ｽ楢・∈縺皮｢ｺ隱阪￥縺縺輔＞縲・      </div>
     </section>
   );
 }
