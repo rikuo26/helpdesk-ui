@@ -1,8 +1,9 @@
-/** Azure Functions へのプロキシ共通（堅牢・型安全 + undiciフォールバック）
+/** Azure Functions へのプロキシ共通（堅牢・型安全 + undiciフォールバック最終版）
  *  - 実行時 env は bracket 記法で読む（SWAでも確実）
  *  - hop-by-hop 等の禁止ヘッダーを除去（Expect:100-continue を必ず落とす）
- *  - まず fetch(undici) で送る。失敗（UND_ERR_NOT_SUPPORTED 等）時は node:https/http で再送
- *  - 返信には常に x-proxy-sig を付加（デプロイ確認用）
+ *  - JSON は文字列のまま渡す（Content-Type: application/json を明示）
+ *  - fetch(undici) が失敗したら node:http/https で再送
+ *  - x-proxy-sig で経路を可視化（v9-undici / v9-fallback-nodehttps / v9-error）
  */
 
 import http from "node:http";
@@ -22,7 +23,7 @@ function isJson(ct: string): boolean {
   return /\bapplication\/json\b/i.test(ct);
 }
 
-/** 転送しないヘッダー */
+/** 転送しない（すると壊れる）ヘッダー */
 const DROP_HEADERS = new Set([
   "host",
   "connection",
@@ -35,7 +36,7 @@ const DROP_HEADERS = new Set([
   "upgrade",
   "accept-encoding",
   "content-length",
-  "expect", // ← これがあると undici が UND_ERR_NOT_SUPPORTED で落ちる
+  "expect", // ← iwr が付けると undici が落ちる
 ]);
 
 /** Headers → 素のオブジェクト（落とすべきは落とす） */
@@ -49,20 +50,14 @@ function sanitizeToObject(src: Headers): Record<string, string> {
   return obj;
 }
 
-function headersObjectToHeaders(obj: Record<string,string>): Headers {
-  const h = new Headers();
-  for (const [k,v] of Object.entries(obj)) h.set(k, v);
-  return h;
-}
-
 function chooseFuncKey(req: Request): string | undefined {
   const u = new URL(req.url);
   return (
-    u.searchParams.get("code") ||                 // クエリ優先（テスト用）
+    u.searchParams.get("code") ||                 // クエリ（テスト用）
     req.headers.get("x-functions-key") ||         // ヘッダ（テスト用）
     req.headers.get("x-func-key") ||
     req.headers.get("x-api-key") ||
-    process.env["FUNC_KEY"] ||                    // SWA の環境変数
+    process.env["FUNC_KEY"] ||                    // SWA の設定
     process.env["API_KEY"] ||
     process.env["ASSIST_FUNC_KEY"] ||
     undefined
@@ -78,7 +73,7 @@ function buildFuncUrl(path: string, key?: string): string {
   return url.toString();
 }
 
-/** undici(fetch) が不調の時に使うフォールバック実装 */
+/** undici(fetch) フォールバック */
 async function nodeRequest(
   urlStr: string,
   init: { method: string; headers: Record<string,string>; body?: string | ArrayBuffer }
@@ -87,7 +82,6 @@ async function nodeRequest(
   const isHttps = u.protocol === "https:";
   const lib = isHttps ? https : http;
 
-  // Content-Length は明示したほうが一部の経路で安定する
   const headers: Record<string,string> = { ...init.headers };
   let bodyBuf: Buffer | undefined;
   if (typeof init.body === "string") {
@@ -120,7 +114,7 @@ async function nodeRequest(
             else if (typeof v === "string") h.set(k, v);
           }
           h.delete("transfer-encoding");
-          h.set("x-proxy-sig", "v8-fallback-nodehttps"); // 署名
+          h.set("x-proxy-sig", "v9-fallback-nodehttps");
           resolve(new Response(buf, { status: res.statusCode || 200, headers: h }));
         });
       }
@@ -137,46 +131,49 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
     const key = chooseFuncKey(req);
     const url = buildFuncUrl(path, key);
 
-    // 転送ヘッダ（落とすべきものは落とす）
+    // 転送ヘッダ（禁止ヘッダは落とす）
     const headersObj = sanitizeToObject(req.headers);
     if (key) headersObj["x-functions-key"] = key; // 冗長化（ヘッダにも載せる）
-    delete headersObj["Expect"]; // 大文字で来ても念のため
+    delete headersObj["Expect"]; // 念のため大文字版も除去
     delete headersObj["expect"];
 
-    // BodyInit を string or ArrayBuffer に正規化
+    // Body を正規化
     let bodyInit: string | ArrayBuffer | undefined;
     if (method !== "GET" && method !== "HEAD") {
       const ct = req.headers.get("content-type") || "";
       if (isJson(ct)) {
+        // JSON は文字列で（charset は付けない）
         const text = await req.text();
         bodyInit = text && text.length ? text : "{}";
-        headersObj["content-type"] = "application/json; charset=utf-8";
+        headersObj["content-type"] = "application/json";
       } else {
         bodyInit = await req.arrayBuffer();
       }
     }
 
-    // まず fetch(undici) で試す
+    // まず fetch(undici)
     try {
       const res = await fetch(url, {
         method,
         headers: headersObj,
-        body: bodyInit as any, // Node fetch は string/ArrayBuffer を受け付ける
+        body: bodyInit as any,
       });
       const h = new Headers(res.headers);
       h.delete("transfer-encoding");
-      h.set("x-proxy-sig", "v8-undici"); // 署名
+      h.set("x-proxy-sig", "v9-undici");
       return new Response(res.body, { status: res.status, headers: h });
     } catch (e: any) {
-      // undici が嫌がるとき（UND_ERR_NOT_SUPPORTED など）はフォールバック
-      if (e?.code === "UND_ERR_NOT_SUPPORTED" || /not supported/i.test(String(e?.message || ""))) {
+      // e.cause.code に入るケースを拾う
+      const code = e?.code || e?.cause?.code || "";
+      const msg  = String(e?.message || e?.cause?.message || "");
+      if (code === "UND_ERR_NOT_SUPPORTED" || /UND_ERR_NOT_SUPPORTED|not supported/i.test(msg)) {
         const res = await nodeRequest(url, { method, headers: headersObj, body: bodyInit });
         return res;
       }
       throw e;
     }
   } catch (e: unknown) {
-    const err = e as any;
+    const err: any = e;
     return new Response(
       JSON.stringify({
         error: err?.message || String(e),
@@ -184,7 +181,7 @@ export async function proxyToFunc(req: Request, path: string): Promise<Response>
         errno: err?.errno ?? null,
         target: path,
       }),
-      { status: 500, headers: { "content-type": "application/json", "x-proxy-sig": "v8-error" } },
+      { status: 500, headers: { "content-type": "application/json", "x-proxy-sig": "v9-error" } },
     );
   }
 }
