@@ -1,0 +1,7 @@
+{
+  "model": "gpt-4o-mini",
+  "messages": [
+    { "role": "system", "content": "日本語で簡潔に答えてください。" },
+    { "role": "user",   "content": "こんにちは。1+1は？" }
+  ]
+}
