@@ -2,8 +2,9 @@ import { apiFetch } from "@/lib/api";
 import StatusQuickEdit from "@/components/StatusQuickEdit";
 
 type Ticket = { id:string; title:string; description?:string|null; status:string; createdAt:string; createdBy?:string|null };
+type Props = { scope?: "all" | "mine"; admin?: boolean } & Record<string, unknown>;
 
-export default async function TicketsGrid({ scope = "all" }: { scope?: "all"|"mine" }) {
+export default async function TicketsGrid({ scope = "all" }: Props) {
   const list = await apiFetch<Ticket[]>(`/tickets?scope=${scope}`);
   return (
     <table style={{ width:"100%", borderCollapse:"collapse" }}>
