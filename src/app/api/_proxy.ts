@@ -1,58 +1,56 @@
+import { Buffer } from "buffer";
+
+/**
+ * Next の Route Handler から Azure Functions に中継。
+ * - x-ms-client-principal を付与（SWA の .auth/me を Base64 化）
+ * - x-functions-key を付与（FUNC_HOST_KEY / FUNCTIONS_API_KEY）
+ * - 余計な Cookie は落として安定化
+ * - 相関ID (x-correlation-id) を自動付与
+ */
 export async function proxyToFunc(req: Request, funcPath: string) {
   const reqUrl = new URL(req.url);
-  const selfBase = (process.env.SELF_BASE || process.env.PUBLIC_BASE_URL || `${reqUrl.protocol}//${reqUrl.host}`).replace(/\/+$/,'');
-  const base = (process.env.FUNC_BASE || selfBase).replace(/\/+$/,'');
+  const selfBase = (process.env.SELF_BASE
+    || process.env.PUBLIC_BASE_URL
+    || `${reqUrl.protocol}//${reqUrl.host}`).replace(/\/+$/, "");
 
-  const url = `${base}${funcPath.startsWith('/') ? '' : '/'}${funcPath}`;
-  const method = req.method || 'GET';
+  const funcBase = (process.env.FUNC_BASE || selfBase).replace(/\/+$/, "");
+  const url = `${funcBase}${funcPath.startsWith("/") ? "" : "/"}${funcPath}`;
 
-  // 入ってきたヘッダー
-  const inHeaders = new Headers(req.headers);
+  const method = req.method || "GET";
+  const inH = new Headers(req.headers);
+  const outH = new Headers(inH);
 
-  // 転送用ヘッダー（余計なものは落とす）
-  const outHeaders = new Headers(inHeaders);
-  outHeaders.delete('cookie');
-  outHeaders.delete('accept-encoding'); // ← Functions 側に圧縮させない
-  outHeaders.delete('content-length');
-
-  // ホストキー（匿名でも通す）
+  // Functions ホストキー
   const hostKey = process.env.FUNC_HOST_KEY || process.env.FUNCTIONS_API_KEY;
-  if (hostKey && !outHeaders.has('x-functions-key')) outHeaders.set('x-functions-key', hostKey);
+  if (hostKey && !outH.has("x-functions-key")) outH.set("x-functions-key", hostKey);
 
-  // SWA Principal を Functions に中継（ログインしていれば）
+  // Cookie は落とす（匿名APIの安定化）
+  outH.delete("cookie");
+
+  // SWA 認証の Principal を Functions へ中継
   try {
-    const cookie = inHeaders.get('cookie') || '';
+    const cookie = inH.get("cookie") || "";
     if (cookie) {
-      const me = await fetch(`${selfBase}/.auth/me`, { headers: { cookie }, cache: 'no-store' });
+      const me = await fetch(`${selfBase}/.auth/me`, { headers: { cookie }, cache: "no-store" });
       if (me.ok) {
         const meJson = await me.json();
-        const b64 = Buffer.from(JSON.stringify(meJson), 'utf8').toString('base64');
-        outHeaders.set('x-ms-client-principal', b64);
+        const b64 = Buffer.from(JSON.stringify(meJson)).toString("base64");
+        outH.set("x-ms-client-principal", b64);
       }
     }
-  } catch {}
+  } catch { /* 取得失敗時は匿名で継続 */ }
 
-  // 相関ID（障害解析用）
-  if (!outHeaders.has('x-correlation-id')) {
-    try {
-      // @ts-ignore
-      const cid = globalThis.crypto?.randomUUID?.() ?? String(Date.now());
-      outHeaders.set('x-correlation-id', cid);
-    } catch {}
+  // 相関ID
+  if (!outH.has("x-correlation-id")) {
+    const cid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
+    outH.set("x-correlation-id", cid);
   }
 
-  // ボディ
-  const body = (method === 'GET' || method === 'HEAD') ? undefined
-               : await req.arrayBuffer().catch(() => undefined);
+  const body = (method === "GET" || method === "HEAD")
+    ? undefined
+    : await req.arrayBuffer().catch(() => undefined);
 
-  // 呼び出し
-  const r = await fetch(url, { method, headers: outHeaders, body, redirect: 'manual', cache: 'no-store' });
-
-  // レスポンスヘッダ調整（ブラウザ側エラー防止）
-  const respHeaders = new Headers(r.headers);
-  respHeaders.delete('content-encoding'); // ← ここが最重要
-  respHeaders.delete('content-length');
-  respHeaders.delete('transfer-encoding');
-
-  return new Response(r.body, { status: r.status, headers: respHeaders });
+  const res = await fetch(url, { method, headers: outH, body, redirect: "manual", cache: "no-store" });
+  const resHeaders = new Headers(res.headers);
+  return new Response(res.body, { status: res.status, headers: resHeaders });
 }

@@ -2,27 +2,24 @@
 import React, { useMemo, useRef, useState } from "react";
 import { BRAND } from "./brand";
 
-type Props = { data: number[]; labels?: string[]; height?: number };
+type Props = { data: number[]; labels?: string[]; height?: number; };
 
 export default function SimpleLineChart({ data, labels = [], height = 160 }: Props) {
   const xs = data?.length ? data : [0];
   const max = Math.max(...xs, 1);
   const w = Math.max((xs.length - 1) * 24 + 24, 200);
-  const h = height ?? 160;
+  const h = height;
   const pad = 12;
   const step = (w - pad * 2) / Math.max(xs.length - 1, 1);
-
   const points = useMemo(
     () => xs.map((v, i) => `${pad + i * step},${h - pad - (v / max) * (h - pad * 2)}`).join(" "),
     [xs, step, h, pad, max]
   );
-
   const ref = useRef<HTMLDivElement>(null);
   const [hover, setHover] = useState<{ i: number; x: number; y: number } | null>(null);
 
   function onMove(e: React.MouseEvent) {
-    const el = ref.current;
-    if (!el) return;
+    const el = ref.current; if (!el) return;
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     let i = Math.round((x - pad) / step);
@@ -42,12 +39,11 @@ export default function SimpleLineChart({ data, labels = [], height = 160 }: Pro
         {xs.map((v, i) => {
           const cx = pad + i * step;
           const cy = h - pad - (v / max) * (h - pad * 2);
-          return <circle key={i} cx={cx} cy={cy} r={3}
+          return <circle key={i} cx={cx} cy={cy} r="3"
                          fill={hover?.i === i ? BRAND.primaryLight : BRAND.primary}
                          style={{ transition: "all .15s ease" }} />;
         })}
       </svg>
-
       {hover && (
         <div style={{
           position: "absolute",
