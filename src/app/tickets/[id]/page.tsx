@@ -9,14 +9,15 @@ type Ticket = {
   createdBy?: string | null;
 };
 
-export default async function TicketDetailPage(
-  { params }: { params: Promise<{ id: string }> }
-) {
-  // Next 15: params は Promise
-  const { id } = await params;
+async function normParams(raw: any): Promise<Record<string, any>> {
+  if (raw && typeof raw.then === "function") return (await raw) ?? {};
+  return raw ?? {};
+}
 
-  // 取得失敗でもページは落とさない
-  const raw = (await getTicket(id).catch(() => null)) as any;
+export default async function TicketDetailPage(props: any) {
+  const p = await normParams(props?.params);
+  const id = String(p?.id ?? "");
+  const raw = id ? await getTicket(id).catch(() => null) : null;
   const t: Ticket | null = raw && typeof raw === "object" ? (raw as Ticket) : null;
 
   return (

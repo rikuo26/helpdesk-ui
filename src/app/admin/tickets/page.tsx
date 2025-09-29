@@ -8,8 +8,16 @@ import SimpleBarChart from "@/components/charts/SimpleBarChart";
 type Stats = { total:number; newToday:number; byStatus:Record<string,number>; series?:{ labels:string[]; counts:number[] } };
 type UsersRow = { owner?:string; name?:string; total?:number; open?:number; in_progress?:number; done?:number };
 
-export default async function AdminTicketsPage({ searchParams }: { searchParams?: { days?: string } }) {
-  const days = Math.max(1, Math.min(90, Number(searchParams?.days ?? "14") || 14));
+// Next 15/14 両対応: searchParams が Promise の場合とオブジェクトの場合を吸収
+async function normSearchParams(raw: any): Promise<Record<string, any>> {
+  if (raw && typeof raw.then === "function") return (await raw) ?? {};
+  return raw ?? {};
+}
+
+export default async function AdminTicketsPage(props: any) {
+  const sp = await normSearchParams(props?.searchParams);
+  const daysStr = Array.isArray(sp.days) ? sp.days[0] : sp.days;
+  const days = Math.max(1, Math.min(90, Number(daysStr) || 14));
 
   const [stats, users] = await Promise.all([
     apiGet<Stats>(`/tickets/stats?days=${days}`, { fallback: { total:0, newToday:0, byStatus:{}, series:{ labels:[], counts:[] } } }),
