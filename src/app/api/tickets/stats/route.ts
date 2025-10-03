@@ -1,10 +1,10 @@
 ﻿export const runtime = "nodejs";
-import { proxyToFunc } from "@/app/api/_proxy";
 
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
-const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
 
-// どんな文字列/数値でも Date にして、失敗したら null
+const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
+const n0   = (v:any)=> Number.isFinite(+v) ? +v : 0;
+
 function parseDate(src:any): Date | null {
   if (!src) return null;
   if (src instanceof Date) return Number.isFinite(+src) ? src : null;
@@ -21,12 +21,23 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
-// NaN を 0 に丸める
-const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
+// Functions の実体を直接叩く（SWA 本番での再帰を避ける）
+async function getTickets(origin:string): Promise<Ticket[]> {
+  const urls = [
+    `${origin}/api/proxy-tickets?scope=all`, // 本番・推奨
+    `${origin}/api/tickets?scope=all`,       // ローカル fallback（残しつつ優先度は下げる）
+  ];
+  for (const u of urls) {
+    try {
+      const r = await fetch(u, { cache:"no-store" });
+      if (r.ok) return await r.json() as Ticket[];
+    } catch {}
+  }
+  return [];
+}
 
 async function computeAll(origin:string, days:number){
-  const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store" });
-  const list = (await r.json()) as Ticket[];
+  const list = await getTickets(origin);
 
   const total = list.length;
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
@@ -61,7 +72,7 @@ async function computeAll(origin:string, days:number){
     usersMap.set(user, (usersMap.get(user) ?? 0) + 1);
 
     const d = parseDate(t.createdAt);
-    if (!d) continue;                         // 壊れた日時は集計から除外
+    if (!d) continue;
     const key = d.toISOString().slice(0,10);
     if (key === todayKey) today_new++;
     if (key in counts) counts[key]++;
@@ -110,22 +121,16 @@ async function computeAll(origin:string, days:number){
     statusCounts: { open, in_progress, done, unresolved },
 
     daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
-
     weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
 
     users,
     usersChart: { labels: users.map(u => u.name), series: users.map(u => n0(u.count)), data: users.map(u => n0(u.count)) }
   };
 
-  // 互換: data, stats にも同じ
   return { ...payload, stats: payload, data: { ...payload, stats: payload } };
 }
 
 export async function GET(req: Request) {
-  try {
-    const upstream = await proxyToFunc(req, "/api/tickets/stats");
-    if (upstream.ok) return upstream;
-  } catch {}
   const url = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
   const origin = url.origin;
