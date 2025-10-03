@@ -1,26 +1,46 @@
 ﻿export const runtime = "nodejs";
 import { proxyToFunc } from "@/app/api/_proxy";
 
-type Ticket = { id:number; createdAt:string; createdBy?:string|null; status?:string|null };
+type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
+
+// どんな文字列/数値でも Date にして、失敗したら null
+function parseDate(src:any): Date | null {
+  if (!src) return null;
+  if (src instanceof Date) return Number.isFinite(+src) ? src : null;
+  if (typeof src === "number") { const d = new Date(src); return Number.isFinite(+d) ? d : null; }
+  const s = String(src).trim();
+  let d = new Date(s);
+  if (Number.isFinite(+d)) return d;
+  const m = s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+  if (m) {
+    const [_, y, mo, da, hh="0", mm="0", ss="0"] = m;
+    d = new Date(Date.UTC(+y, +mo-1, +da, +hh, +mm, +ss));
+    if (Number.isFinite(+d)) return d;
+  }
+  return null;
+}
+
+// NaN を 0 に丸める
+const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
 async function computeAll(origin:string, days:number){
   const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store" });
   const list = (await r.json()) as Ticket[];
 
   const total = list.length;
-  const todayKey = new Date().toISOString().slice(0,10);
+  const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
+  const todayKey = todayUTC.toISOString().slice(0,10);
 
   let today_new = 0;
   let open = 0, in_progress = 0, done = 0, unresolved = 0;
 
   const usersMap = new Map<string, number>();
 
-  const today = new Date(); today.setUTCHours(0,0,0,0);
   const labels:string[] = [];
   const counts:Record<string,number> = {};
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(today); d.setUTCDate(today.getUTCDate() - i);
+    const d = new Date(todayUTC); d.setUTCDate(todayUTC.getUTCDate() - i);
     const key = d.toISOString().slice(0,10);
     labels.push(key); counts[key] = 0;
   }
@@ -40,7 +60,8 @@ async function computeAll(origin:string, days:number){
     const user = (t.createdBy ?? "unknown") + "";
     usersMap.set(user, (usersMap.get(user) ?? 0) + 1);
 
-    const d = new Date(t.createdAt);
+    const d = parseDate(t.createdAt);
+    if (!d) continue;                         // 壊れた日時は集計から除外
     const key = d.toISOString().slice(0,10);
     if (key === todayKey) today_new++;
     if (key in counts) counts[key]++;
@@ -49,7 +70,7 @@ async function computeAll(origin:string, days:number){
     if (Number.isFinite(ts) && ts >= cutoff) {
       recentCount++;
       const wd = d.getUTCDay();
-      weekdayCounts[wd]++;
+      if (wd >= 0 && wd <= 6) weekdayCounts[wd]++;
     }
   }
 
@@ -58,16 +79,15 @@ async function computeAll(origin:string, days:number){
     .sort((a,b)=>b.count-a.count)
     .slice(0,10);
 
-  const dailySeries = labels.map(k=>counts[k] ?? 0);
+  const dailySeries = labels.map(k=>n0(counts[k]));
 
-  const avg_per_day = Number((recentCount / Math.max(days,1)).toFixed(2));
-  const completion_rate = total ? Number((done/total*100).toFixed(1)) : 0;
-  const unresolved_rate = total ? Number((unresolved/total*100).toFixed(1)) : 0;
-  const wip_rate = total ? Number((in_progress/total*100).toFixed(1)) : 0;
-  const avg_unresolved_per_user = usersMap.size ? Number((unresolved/usersMap.size).toFixed(2)) : 0;
+  const avg_per_day = Number((n0(recentCount) / Math.max(days,1)).toFixed(2));
+  const completion_rate = total ? Number((n0(done)/total*100).toFixed(1)) : 0;
+  const unresolved_rate = total ? Number((n0(unresolved)/total*100).toFixed(1)) : 0;
+  const wip_rate = total ? Number((n0(in_progress)/total*100).toFixed(1)) : 0;
+  const avg_unresolved_per_user = usersMap.size ? Number((n0(unresolved)/usersMap.size).toFixed(2)) : 0;
 
   const payload = {
-    // ---- flat ----
     total, totalCount: total,
     today_new, todayNew: today_new, todayCount: today_new,
     avg_per_day, avgPerDay: avg_per_day,
@@ -76,7 +96,6 @@ async function computeAll(origin:string, days:number){
     avg_unresolved_per_user, avgUnresolvedPerUser: avg_unresolved_per_user,
     wipRate: wip_rate,
 
-    // ---- nested for UI ----
     summary: {
       totalCount: total,
       todayCount: today_new,
@@ -90,33 +109,16 @@ async function computeAll(origin:string, days:number){
 
     statusCounts: { open, in_progress, done, unresolved },
 
-    daily: {
-      labels,
-      items: labels.map(k => ({ date: k, count: counts[k] })),
-      series: dailySeries,
-      data: dailySeries
-    },
+    daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
 
-    weekday: {
-      labels: weekdayLabels,
-      series: weekdayCounts,
-      data: weekdayCounts
-    },
+    weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
 
     users,
-    usersChart: {
-      labels: users.map(u => u.name),
-      series: users.map(u => u.count),
-      data: users.map(u => u.count)
-    }
+    usersChart: { labels: users.map(u => u.name), series: users.map(u => n0(u.count)), data: users.map(u => n0(u.count)) }
   };
 
-  // 互換のために3系統で返す（トップ / data / data.stats）
-  return {
-    ...payload,
-    stats: payload,
-    data: { ...payload, stats: payload }
-  };
+  // 互換: data, stats にも同じ
+  return { ...payload, stats: payload, data: { ...payload, stats: payload } };
 }
 
 export async function GET(req: Request) {
@@ -127,9 +129,13 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
   const origin = url.origin;
-  const result = await computeAll(origin, days);
-  return new Response(JSON.stringify(result), {
-    status: 200,
-    headers: { "content-type":"application/json; charset=utf-8" }
-  });
+  try {
+    const result = await computeAll(origin, days);
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { "content-type":"application/json; charset=utf-8" }
+    });
+  } catch (e:any) {
+    return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), { status: 500 });
+  }
 }
