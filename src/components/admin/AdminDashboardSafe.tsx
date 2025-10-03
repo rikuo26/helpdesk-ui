@@ -16,7 +16,7 @@ function Card({title, value, suffix=""}:{title:string; value:string|number; suff
 
 export default function AdminDashboardSafe() {
   const sp = useSearchParams();
-  const days = Math.max(1, Number(sp.get("days") ?? 14));
+  const days = Math.max(1, Number(sp?.get("days") ?? 14));
   const [vm, setVm] = useState<Norm|null>(null);
 
   useEffect(()=> {

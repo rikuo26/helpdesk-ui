@@ -1,32 +1,37 @@
-﻿import { headers } from "next/headers";
+﻿"use client";
+import { useEffect, useState } from "react";
+import { apiGet } from "@/lib/api";
 
 type Ticket = {
-  id:number; title:string; description:string; status:string; createdAt:string; createdBy:string
+  id:number; title:string; description:string; status:string;
+  createdAt:string; createdBy?:string|null;
 };
 
-// APP_ORIGIN > ヘッダから復元 の順でオリジンを決める
-async function resolveOrigin() {
-  const env = process.env.APP_ORIGIN;
-  if (env) return env;
-  const h = await headers();                 // Next 15 の async Dynamic API
-  const proto = h.get("x-forwarded-proto") ?? "http";
-  const host  = h.get("x-forwarded-host")  ?? h.get("host") ?? "localhost:3000";
-  return `${proto}://${host}`;
-}
+export default function TicketsGrid({ scope, admin = false }: { scope: "mine" | "all"; admin?: boolean }) {
+  const [rows, setRows] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
-export default async function TicketsGrid({ scope }: { scope: "mine" | "all" }) {
-  const origin = await resolveOrigin();
-  const url = new URL(`/api/tickets?scope=${scope}`, origin);
+  useEffect(() => {
+    let aborted = false;
+    (async () => {
+      setLoading(true); setError("");
+      try {
+        const list = await apiGet<Ticket[]>(`/tickets?scope=${scope}`, { fallback: [] as any });
+        if (!aborted) setRows(Array.isArray(list) ? list : []);
+      } catch (e:any) {
+        if (!aborted) setError(e?.message ?? "読み込みに失敗しました");
+      } finally {
+        if (!aborted) setLoading(false);
+      }
+    })();
+    return () => { aborted = true; };
+  }, [scope]);
 
-  const r = await fetch(url, { cache: "no-store" });
-  if (!r.ok) {
-    return <div style={{color:"#b91c1c"}}>読み込みに失敗しました（{r.status}）</div>;
-  }
+  if (loading) return <div style={{padding:12}}>読み込み中...</div>;
+  if (error)   return <div style={{padding:12, color:"#b91c1c"}}>{error}</div>;
 
-  const list: unknown = await r.json();
-  const rows = Array.isArray(list) ? (list as Ticket[]) : [];
-
-  if (rows.length === 0) {
+  if (!rows.length) {
     return (
       <table style={{width:"100%", borderCollapse:"collapse"}}>
         <thead><tr>
@@ -52,7 +57,7 @@ export default async function TicketsGrid({ scope }: { scope: "mine" | "all" }) 
       </tr></thead>
       <tbody>
         {rows.map(t=>(
-          <tr key={t.id}>
+          <tr key={t.id} style={{borderTop:"1px solid #f3f4f6"}}>
             <td style={{padding:8}}>{t.id}</td>
             <td style={{padding:8}}>{t.title}</td>
             <td style={{padding:8}}>{t.status}</td>

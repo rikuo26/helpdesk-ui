@@ -18,8 +18,8 @@ export default function TicketEditForm({ id }: { id:string }) {
     (async()=>{
       setLoading(true);
       try {
-        const data = await getTicket(id);
-        if (!aborted) setT(data as Ticket);
+        const data = await getTicket(id) as Ticket | null;
+        if (!aborted) setT(data);
       } catch (e:any) {
         if (!aborted) setError(e?.message ?? "読み込みエラー");
       } finally {

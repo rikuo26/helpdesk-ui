@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     // 404/400 の典型は従来の deployments 形に切替
     if (!res.ok && (res.status === 404 || res.status === 400)) {
       const urlRespDep = `${base}/openai/deployments/${dep}/responses?api-version=${ver}`;
-      payloadResp = { input: toResponsesInput(messages), temperature, top_p, max_output_tokens: max_out };
+      payloadResp = { model: dep, input: toResponsesInput(messages), temperature, top_p, max_output_tokens: max_out };
       res = await call(urlRespDep, key, payloadResp, ridVal, "responses-dep");
     }
 
