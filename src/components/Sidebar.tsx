@@ -3,11 +3,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 function NavItem({ href, label }: { href: string; label: string }) {
-  const pathname = usePathname();
+  const pathname = usePathname(); const path = pathname ?? "";
   const active =
     href === "/"
-      ? pathname === "/"                // ルートは完全一致
-      : pathname.startsWith(href);      // それ以外は前方一致
+      ? path === "/"                // ルートは完全一致
+      : path.startsWith(href);      // それ以外は前方一致
   return (
     <Link
       href={href}
