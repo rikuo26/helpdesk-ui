@@ -1,16 +1,11 @@
-﻿import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
-  const { pathname } = req.nextUrl;
-
-  if (
-    pathname.startsWith("/api/assist") ||
-    pathname.startsWith("/api/uploads/presign")
-  ) {
-    return NextResponse.next();
+export function middleware(req: Request) {
+  const url = new URL(req.url);
+  if (url.pathname.startsWith("/api/")) {
+    return NextResponse.next();   // ← API は触らない
   }
   return NextResponse.next();
 }
-export const config = { matcher: ["/api/:path*"] };
 
-
+export const config = { matcher: ["/((?!_next|.*\\..*).*)"] };

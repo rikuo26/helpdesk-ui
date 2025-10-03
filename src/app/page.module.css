@@ -1,0 +1,11 @@
+﻿.wrap { padding:24px; background:#f8fafc; min-height:100vh; }
+.container { max-width:1200px; margin:0 auto; }
+.h1 { font-size:20px; font-weight:700; margin:0 0 16px 4px; }
+.grid { display:grid; grid-template-columns:1.1fr 0.9fr; gap:20px; }
+.card {
+  background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px;
+  box-shadow:0 1px 2px rgba(16,24,40,.04);
+}
+@media (max-width: 960px) {
+  .grid { grid-template-columns:1fr; }
+}

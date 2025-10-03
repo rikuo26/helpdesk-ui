@@ -1,4 +1,4 @@
-﻿import { headers } from "next/headers";
+import { headers } from "next/headers";
 
 export type ClientPrincipal = {
   userId?: string;

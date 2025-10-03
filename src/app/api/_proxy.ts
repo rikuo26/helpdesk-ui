@@ -1,56 +1,41 @@
-import { Buffer } from "buffer";
+﻿import type { RequestInit } from "next/dist/server/web/spec-extension/request";
 
-/**
- * Next の Route Handler から Azure Functions に中継。
- * - x-ms-client-principal を付与（SWA の .auth/me を Base64 化）
- * - x-functions-key を付与（FUNC_HOST_KEY / FUNCTIONS_API_KEY）
- * - 余計な Cookie は落として安定化
- * - 相関ID (x-correlation-id) を自動付与
- */
+function makePrincipal(email: string) {
+  const obj = {
+    identityProvider: "aad",
+    userDetails: email,
+    claims: [{ typ: "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress", val: email }],
+  };
+  return Buffer.from(JSON.stringify(obj), "utf8").toString("base64");
+}
+
 export async function proxyToFunc(req: Request, funcPath: string) {
-  const reqUrl = new URL(req.url);
-  const selfBase = (process.env.SELF_BASE
-    || process.env.PUBLIC_BASE_URL
-    || `${reqUrl.protocol}//${reqUrl.host}`).replace(/\/+$/, "");
+  const base = process.env.FUNC_BASE!;
+  const key  = process.env.FUNC_HOST_KEY!;
 
-  const funcBase = (process.env.FUNC_BASE || selfBase).replace(/\/+$/, "");
-  const url = `${funcBase}${funcPath.startsWith("/") ? "" : "/"}${funcPath}`;
+  const url = new URL(`${base}${funcPath}`);
+  if (!url.searchParams.has("code")) url.searchParams.set("code", key);
 
-  const method = req.method || "GET";
-  const inH = new Headers(req.headers);
-  const outH = new Headers(inH);
+  // サニタイズ済みヘッダのみ転送
+  const headers = new Headers();
+  headers.set("content-type", "application/json");
 
-  // Functions ホストキー
-  const hostKey = process.env.FUNC_HOST_KEY || process.env.FUNCTIONS_API_KEY;
-  if (hostKey && !outH.has("x-functions-key")) outH.set("x-functions-key", hostKey);
-
-  // Cookie は落とす（匿名APIの安定化）
-  outH.delete("cookie");
-
-  // SWA 認証の Principal を Functions へ中継
-  try {
-    const cookie = inH.get("cookie") || "";
-    if (cookie) {
-      const me = await fetch(`${selfBase}/.auth/me`, { headers: { cookie }, cache: "no-store" });
-      if (me.ok) {
-        const meJson = await me.json();
-        const b64 = Buffer.from(JSON.stringify(meJson)).toString("base64");
-        outH.set("x-ms-client-principal", b64);
-      }
-    }
-  } catch { /* 取得失敗時は匿名で継続 */ }
-
-  // 相関ID
-  if (!outH.has("x-correlation-id")) {
-    const cid = (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`);
-    outH.set("x-correlation-id", cid);
+  const incomingPrincipal = req.headers.get("x-ms-client-principal");
+  if (incomingPrincipal) {
+    headers.set("x-ms-client-principal", incomingPrincipal);
+  } else if (process.env.NODE_ENV !== "production") {
+    const email = process.env.DEV_EMAIL || "guest@example.com";
+    headers.set("x-ms-client-principal", makePrincipal(email));
   }
 
-  const body = (method === "GET" || method === "HEAD")
-    ? undefined
-    : await req.arrayBuffer().catch(() => undefined);
+  const method = req.method || "GET";
+  const init: RequestInit = { method, headers, cache: "no-store" };
+  if (method !== "GET" && method !== "HEAD") init.body = await req.text();
 
-  const res = await fetch(url, { method, headers: outH, body, redirect: "manual", cache: "no-store" });
-  const resHeaders = new Headers(res.headers);
-  return new Response(res.body, { status: res.status, headers: resHeaders });
+  const r = await fetch(url.toString(), init);
+  const text = await r.text();
+  return new Response(text, {
+    status: r.status,
+    headers: { "content-type": r.headers.get("content-type") ?? "application/json" },
+  });
 }

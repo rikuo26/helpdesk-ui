@@ -1,4 +1,4 @@
-export type Json = any;
+﻿export type Json = any;
 
 // /api/* に正規化
 export function toApiPath(path: string): string {
@@ -8,9 +8,32 @@ export function toApiPath(path: string): string {
   return p;
 }
 
+// サーバー側用: オリジン解決（APP_ORIGIN > ヘッダ）
+async function resolveOriginForServer(): Promise<string | null> {
+  try {
+    const env = process.env.APP_ORIGIN;
+    if (env) return env;
+    const { headers } = await import("next/headers");   // Next 15 の async Dynamic API
+    const h = await headers();
+    const proto = h.get("x-forwarded-proto") ?? "http";
+    const host  = h.get("x-forwarded-host") ?? h.get("host") ?? "localhost:3000";
+    return `${proto}://${host}`;
+  } catch {
+    return null;
+  }
+}
+
 // 共通 fetch（クライアント/サーバ両対応）
 export async function apiFetch<T = any>(path: string, init: RequestInit = {}): Promise<T> {
-  const url = toApiPath(path);
+  const rel = toApiPath(path);
+
+  // 重要: サーバー側では必ず絶対 URL 化
+  let url = rel;
+  if (typeof window === "undefined") {
+    const origin = await resolveOriginForServer();
+    if (origin) url = new URL(rel, origin).toString();
+  }
+
   const headers = new Headers(init.headers || {});
   headers.delete("cookie");                // Functions に不要な Cookie は落とす
   const res = await fetch(url, { ...init, headers, cache: "no-store" });
@@ -27,7 +50,7 @@ export async function apiFetch<T = any>(path: string, init: RequestInit = {}): P
   return (await res.arrayBuffer()) as unknown as T; // 想定外はそのまま
 }
 
-// ===== 旧UI互換ヘルパー（utils.ts から re-export されます） =====
+// ===== 旧UI互換ヘルパー =====
 export async function apiGet<T = any>(path: string, opts: { fallback?: T } = {}): Promise<T> {
   try {
     return await apiFetch<T>(path, { method: "GET" });

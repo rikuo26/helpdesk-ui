@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 import { useState, useRef, useEffect } from "react";
 
 type Role = "user" | "assistant";
@@ -31,7 +31,7 @@ export default function ChatBox() {
         body: JSON.stringify({ messages: [{ role: "user", content }] })
       });
       const data = await r.json().catch(() => ({} as any));
-      const reply = (data?.reply ?? "").toString().trim() || "すみません、応答を取得できませんでした。";
+      const reply = (data?.reply ?? data?.answer ?? "").toString().trim() || "すみません、応答を取得できませんでした。";
       const ai: Message = { id: crypto.randomUUID(), role: "assistant", content: reply, ts: Date.now() };
       setThread((p) => [...p, ai]);
     } catch (e: any) {

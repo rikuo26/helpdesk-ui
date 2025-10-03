@@ -1,4 +1,4 @@
-﻿import "./globals.css";
+import "./globals.css";
 import { getClientPrincipalFromHeaders } from "@/lib/swaAuth";
 import Sidebar from "@/components/Sidebar";
 

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import React from "react";
 
 export type StatusKey = "open"|"investigating"|"waiting"|"in_progress"|"done";

@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 import { useEffect, useState } from "react";
 import { toast } from "@/components/toast";
 import type { StatusKey } from "@/components/StatusProgress";

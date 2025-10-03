@@ -1,4 +1,4 @@
-﻿export function toArray<T = unknown>(v: unknown, fallback: T[] = []): T[] {
+export function toArray<T = unknown>(v: unknown, fallback: T[] = []): T[] {
   return Array.isArray(v) ? (v as T[]) : fallback;
 }
 export function valuesToArray(v: unknown): number[] {

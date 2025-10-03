@@ -1,4 +1,4 @@
-﻿// src/lib/types.ts
+// src/lib/types.ts
 export type TicketStatus = "open" | "pending" | "closed" | string;
 
 export interface Ticket {

@@ -1,4 +1,4 @@
-﻿export type StatusKey = "open"|"investigating"|"waiting"|"in_progress"|"done";
+export type StatusKey = "open"|"investigating"|"waiting"|"in_progress"|"done";
 
 const MAP: Record<StatusKey, { text: string; cls: string }> = {
   open:           { text: "受付",     cls: "text-gray-700 border-gray-400 bg-gray-100" },
