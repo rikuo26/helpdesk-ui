@@ -58,7 +58,6 @@ export default function TicketDetailView({ id }: { id: string }) {
 
         <div style={{marginTop:16, display:"flex", gap:8}}>
           <a href="/mypage" style={{fontSize:12, color:"#2563eb"}}>← マイページへ戻る</a>
-          <a href={`/admin/tickets/${t.id}`} style={{fontSize:12, color:"#2563eb"}}>管理で編集</a>
         </div>
       </div>
     </div>
