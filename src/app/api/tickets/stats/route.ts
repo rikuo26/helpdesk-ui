@@ -1,11 +1,10 @@
 ﻿export const runtime = "nodejs";
+import { proxyToFunc } from "@/app/api/_proxy";
 
-// 統計は Next 側で集計。チケット一覧の取得は /api/proxy-tickets に委譲する
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
-
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
 
-// どんな文字列/数値でも Date へ（失敗は null）
+// どんな文字列/数値でも Date にして、失敗したら null
 function parseDate(src:any): Date | null {
   if (!src) return null;
   if (src instanceof Date) return Number.isFinite(+src) ? src : null;
@@ -22,30 +21,23 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
+// NaN を 0 に丸める
 const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
-async function getAllTicketsViaProxy(req: Request): Promise<Ticket[]> {
-  const rid = Math.random().toString(36).slice(2);
-  const origin = new URL(req.url).origin;
-  const url = `${origin}/api/proxy-tickets?scope=all`;
-
-  console.log(`[stats][${rid}] fetch:`, url);
-  const res = await fetch(url, { cache: "no-store" });
-  const textHead = () => res.text().then(t => t.slice(0, 300)).catch(()=> "");
-
-  if (!res.ok) {
-    console.error(`[stats][${rid}] proxy-tickets failed: ${res.status}`, await textHead());
-    throw new Error(`proxy-tickets failed: ${res.status}`);
+// Functions 経由で全件取得（自己コールを避ける）
+async function pullAllTickets(req: Request): Promise<Ticket[]> {
+  try {
+    const res = await proxyToFunc(req, "/api/tickets?scope=all");
+    const list = res.ok ? await res.json() : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) {
+    console.warn("[stats] pullAllTickets failed:", e);
+    return [];
   }
-  const data = await res.json().catch(() => ([]));
-  const arr = Array.isArray(data) ? data : [];
-  console.log(`[stats][${rid}] tickets:`, arr.length);
-  return arr as Ticket[];
 }
 
-async function computeAll(req: Request, days:number){
-  const list = await getAllTicketsViaProxy(req);
-
+// 配列から統計を計算
+function computeFromList(list: Ticket[], days:number){
   const total = list.length;
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
   const todayKey = todayUTC.toISOString().slice(0,10);
@@ -100,9 +92,9 @@ async function computeAll(req: Request, days:number){
   const dailySeries = labels.map(k=>n0(counts[k]));
 
   const avg_per_day = Number((n0(recentCount) / Math.max(days,1)).toFixed(2));
-  const completion_rate  = total ? Number((n0(done)/total*100).toFixed(1)) : 0;
-  const unresolved_rate  = total ? Number((n0(unresolved)/total*100).toFixed(1)) : 0;
-  const wip_rate         = total ? Number((n0(in_progress)/total*100).toFixed(1)) : 0;
+  const completion_rate = total ? Number((n0(done)/total*100).toFixed(1)) : 0;
+  const unresolved_rate = total ? Number((n0(unresolved)/total*100).toFixed(1)) : 0;
+  const wip_rate = total ? Number((n0(in_progress)/total*100).toFixed(1)) : 0;
   const avg_unresolved_per_user = usersMap.size ? Number((n0(unresolved)/usersMap.size).toFixed(2)) : 0;
 
   const payload = {
@@ -127,7 +119,8 @@ async function computeAll(req: Request, days:number){
 
     statusCounts: { open, in_progress, done, unresolved },
 
-    daily:   { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
+    daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
+
     weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
 
     users,
@@ -138,16 +131,25 @@ async function computeAll(req: Request, days:number){
 }
 
 export async function GET(req: Request) {
-  const url  = new URL(req.url);
-  const days = toInt(url.searchParams.get("days"), 14);
+  // 1) 上流 Functions に /api/tickets/stats があればそれを優先
   try {
-    const result = await computeAll(req, days);
+    const upstream = await proxyToFunc(req, "/api/tickets/stats");
+    if (upstream.ok) return upstream;
+  } catch {}
+
+  // 2) Next 側で集計（自己コールを避け Functions 直呼び）
+  const url = new URL(req.url);
+  const days = toInt(url.searchParams.get("days"), 14);
+
+  try {
+    const list = await pullAllTickets(req);
+    const result = computeFromList(list, days);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "content-type":"application/json; charset=utf-8" }
     });
   } catch (e:any) {
-    console.error("[stats] failed:", e?.message ?? e);
+    console.error("[stats] fallback failed:", e?.message ?? e);
     return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), { status: 500 });
   }
 }
