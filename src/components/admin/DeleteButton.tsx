@@ -8,8 +8,7 @@ export default function DeleteButton({ id }: { id: string | number }) {
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
     try {
-      // deleteTicket は string 想定。ここで統一して渡す
-      await deleteTicket(String(id));
+      await deleteTicket(String(id));        // ← string で統一
       alert("削除しました。");
       router.push("/admin/tickets");
       router.refresh();
@@ -22,12 +21,8 @@ export default function DeleteButton({ id }: { id: string | number }) {
     <button
       onClick={onDelete}
       style={{
-        background: "#dc2626",
-        color: "#fff",
-        padding: "8px 12px",
-        borderRadius: 8,
-        border: "none",
-        cursor: "pointer"
+        background: "#dc2626", color: "#fff", padding: "8px 12px",
+        borderRadius: 8, border: "none", cursor: "pointer"
       }}
       title="このチケットを削除"
     >
