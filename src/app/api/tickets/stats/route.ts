@@ -62,7 +62,7 @@ function computeFromList(list: Ticket[], days:number){
   let recentCount = 0;
 
   for (const t of list) {
-    const st = (t.status ?? "open").toLowerCase();
+    const st = (t.status ?? "open").toLowerCase(); if (st === "deleted" || st === "_deleted") continue;
     if (st === "done") { done++; }
     else if (st === "in_progress" || st === "wip") { in_progress++; unresolved++; }
     else { open++; unresolved++; }
