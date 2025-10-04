@@ -1,6 +1,8 @@
 ﻿import TicketDetailView from "@/components/TicketDetailView";
 
-export default function TicketDetailPage({ params }: { params: { id: string } }) {
-  const id = String(params?.id ?? "");
-  return <TicketDetailView id={id} />;
+export default async function TicketDetailPage(
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  return <TicketDetailView id={String(id)} />;
 }
