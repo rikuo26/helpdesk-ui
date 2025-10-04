@@ -6,19 +6,16 @@ export default function DeleteButton({ id }: { id: string | number }) {
 
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
-
     try {
       const res = await fetch(`/api/tickets/${encodeURIComponent(String(id))}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ status: "deleted" }),
       });
-
       if (!res.ok) {
         const text = await res.text().catch(() => "");
         throw new Error(`${res.status} ${res.statusText} ${text}`);
       }
-
       alert("削除しました。");
       router.push("/admin/tickets");
       router.refresh();
@@ -31,14 +28,7 @@ export default function DeleteButton({ id }: { id: string | number }) {
     <button
       type="button"
       onClick={onDelete}
-      style={{
-        background: "#dc2626",
-        color: "#fff",
-        padding: "8px 12px",
-        borderRadius: 8,
-        border: "none",
-        cursor: "pointer",
-      }}
+      style={{ background:"#dc2626", color:"#fff", padding:"8px 12px", border:"none", borderRadius:8, cursor:"pointer" }}
       title="このチケットを削除"
     >
       削除
