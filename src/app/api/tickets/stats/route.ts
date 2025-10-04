@@ -1,10 +1,11 @@
 ﻿export const runtime = "nodejs";
-import { proxyToFunc } from "@/app/api/_proxy";
 
+// 統計は Next 側で集計。チケット一覧の取得は /api/proxy-tickets に委譲する
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
+
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
 
-// どんな文字列/数値でも Date にして、失敗なら null
+// どんな文字列/数値でも Date へ（失敗は null）
 function parseDate(src:any): Date | null {
   if (!src) return null;
   if (src instanceof Date) return Number.isFinite(+src) ? src : null;
@@ -23,39 +24,28 @@ function parseDate(src:any): Date | null {
 
 const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
-// 認可維持 & 自己再帰回避してチケットを取得。all→(401/403/空)なら mine にフォールバック
-async function loadTickets(origin:string, cookie?:string|null): Promise<Ticket[]> {
-  const baseHeaders: Record<string,string> = { "x-swa-bypass":"1" };
-  if (cookie) baseHeaders["cookie"] = cookie;
+async function getAllTicketsViaProxy(req: Request): Promise<Ticket[]> {
+  const rid = Math.random().toString(36).slice(2);
+  const origin = new URL(req.url).origin;
+  const url = `${origin}/api/proxy-tickets?scope=all`;
 
-  async function fetchScope(scope:"all"|"mine") {
-    const r = await fetch(`${origin}/api/tickets?scope=${scope}`, { cache:"no-store", headers: baseHeaders });
-    return r;
-  }
+  console.log(`[stats][${rid}] fetch:`, url);
+  const res = await fetch(url, { cache: "no-store" });
+  const textHead = () => res.text().then(t => t.slice(0, 300)).catch(()=> "");
 
-  let resp = await fetchScope("all");
-  if (resp.status === 401 || resp.status === 403) {
-    resp = await fetchScope("mine");
+  if (!res.ok) {
+    console.error(`[stats][${rid}] proxy-tickets failed: ${res.status}`, await textHead());
+    throw new Error(`proxy-tickets failed: ${res.status}`);
   }
-  let list: Ticket[] = [];
-  if (resp.ok) {
-    list = await resp.json() as Ticket[];
-    // 「200 かつ 空配列」でも mine を試してみる（権限で all が空になる環境向け）
-    if (!Array.isArray(list) || list.length === 0) {
-      const r2 = await fetchScope("mine");
-      if (r2.ok) {
-        const alt = await r2.json() as Ticket[];
-        if (Array.isArray(alt) && alt.length > 0) list = alt;
-      }
-    }
-  } else {
-    const body = await resp.text().catch(()=> "");
-    throw new Error(`tickets-fetch ${resp.status} ${resp.statusText} ${body.slice(0,200)}`);
-  }
-  return Array.isArray(list) ? list : [];
+  const data = await res.json().catch(() => ([]));
+  const arr = Array.isArray(data) ? data : [];
+  console.log(`[stats][${rid}] tickets:`, arr.length);
+  return arr as Ticket[];
 }
 
-function summarize(list: Ticket[], days:number){
+async function computeAll(req: Request, days:number){
+  const list = await getAllTicketsViaProxy(req);
+
   const total = list.length;
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
   const todayKey = todayUTC.toISOString().slice(0,10);
@@ -110,9 +100,9 @@ function summarize(list: Ticket[], days:number){
   const dailySeries = labels.map(k=>n0(counts[k]));
 
   const avg_per_day = Number((n0(recentCount) / Math.max(days,1)).toFixed(2));
-  const completion_rate = total ? Number((n0(done)/total*100).toFixed(1)) : 0;
-  const unresolved_rate = total ? Number((n0(unresolved)/total*100).toFixed(1)) : 0;
-  const wip_rate = total ? Number((n0(in_progress)/total*100).toFixed(1)) : 0;
+  const completion_rate  = total ? Number((n0(done)/total*100).toFixed(1)) : 0;
+  const unresolved_rate  = total ? Number((n0(unresolved)/total*100).toFixed(1)) : 0;
+  const wip_rate         = total ? Number((n0(in_progress)/total*100).toFixed(1)) : 0;
   const avg_unresolved_per_user = usersMap.size ? Number((n0(unresolved)/usersMap.size).toFixed(2)) : 0;
 
   const payload = {
@@ -137,8 +127,9 @@ function summarize(list: Ticket[], days:number){
 
     statusCounts: { open, in_progress, done, unresolved },
 
-    daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
-    weekday: { labels: ["日","月","火","水","木","金","土"], series: weekdayCounts, data: weekdayCounts },
+    daily:   { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
+    weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
+
     users,
     usersChart: { labels: users.map(u => u.name), series: users.map(u => n0(u.count)), data: users.map(u => n0(u.count)) }
   };
@@ -147,25 +138,16 @@ function summarize(list: Ticket[], days:number){
 }
 
 export async function GET(req: Request) {
-  // 1) 上流 Functions があれば委譲
-  try {
-    const upstream = await proxyToFunc(req, "/api/tickets/stats");
-    if (upstream.ok) return upstream;
-  } catch {}
-  // 2) Next 側集計（all→mine フォールバック）
-  const url = new URL(req.url);
+  const url  = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
   try {
-    const list = await loadTickets(url.origin, req.headers.get("cookie"));
-    const result = summarize(list, days);
+    const result = await computeAll(req, days);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "content-type":"application/json; charset=utf-8" }
     });
   } catch (e:any) {
-    return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), {
-      status: 500,
-      headers: { "content-type":"application/json; charset=utf-8" }
-    });
+    console.error("[stats] failed:", e?.message ?? e);
+    return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), { status: 500 });
   }
 }
