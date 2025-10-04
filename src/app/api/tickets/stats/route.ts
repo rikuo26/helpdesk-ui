@@ -1,10 +1,10 @@
 ﻿export const runtime = "nodejs";
+import { proxyToFunc } from "@/app/api/_proxy";
 
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
-
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
-const n0   = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
+// どんな文字列/数値でも Date にして、失敗したら null
 function parseDate(src:any): Date | null {
   if (!src) return null;
   if (src instanceof Date) return Number.isFinite(+src) ? src : null;
@@ -21,23 +21,18 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
-// Functions の実体を直接叩く（SWA 本番での再帰を避ける）
-async function getTickets(origin:string): Promise<Ticket[]> {
-  const urls = [
-    `${origin}/api/proxy-tickets?scope=all`, // 本番・推奨
-    `${origin}/api/tickets?scope=all`,       // ローカル fallback（残しつつ優先度は下げる）
-  ];
-  for (const u of urls) {
-    try {
-      const r = await fetch(u, { cache:"no-store" });
-      if (r.ok) return await r.json() as Ticket[];
-    } catch {}
-  }
-  return [];
-}
+// NaN を 0 に
+const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
-async function computeAll(origin:string, days:number){
-  const list = await getTickets(origin);
+async function computeAll(origin:string, days:number, cookie?:string|null){
+  const headers: Record<string,string> = { "x-swa-bypass":"1" }; // 自己再帰回避フラグ
+  if (cookie) headers["cookie"] = cookie;                         // 認可維持のため Cookie を中継
+  const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store", headers });
+  if (!r.ok) {
+    const body = await r.text().catch(()=> "");
+    throw new Error(`tickets-fetch ${r.status} ${r.statusText} ${body.slice(0,200)}`);
+  }
+  const list = (await r.json()) as Ticket[];
 
   const total = list.length;
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
@@ -121,6 +116,7 @@ async function computeAll(origin:string, days:number){
     statusCounts: { open, in_progress, done, unresolved },
 
     daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
+
     weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
 
     users,
@@ -131,16 +127,24 @@ async function computeAll(origin:string, days:number){
 }
 
 export async function GET(req: Request) {
+  // 1) 上流 Functions があれば委譲
+  try {
+    const upstream = await proxyToFunc(req, "/api/tickets/stats");
+    if (upstream.ok) return upstream;
+  } catch {}
+  // 2) Next 側集計（Cookie を転送）
   const url = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
-  const origin = url.origin;
   try {
-    const result = await computeAll(origin, days);
+    const result = await computeAll(url.origin, days, req.headers.get("cookie"));
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "content-type":"application/json; charset=utf-8" }
     });
   } catch (e:any) {
-    return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), { status: 500 });
+    return new Response(JSON.stringify({ error: e?.message ?? "stats-failed" }), {
+      status: 500,
+      headers: { "content-type":"application/json; charset=utf-8" }
+    });
   }
 }

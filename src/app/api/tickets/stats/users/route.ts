@@ -1,4 +1,5 @@
 ﻿export const runtime = "nodejs";
+import { proxyToFunc } from "@/app/api/_proxy";
 
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
@@ -19,22 +20,12 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
-async function getTickets(origin:string): Promise<Ticket[]> {
-  const urls = [
-    `${origin}/api/proxy-tickets?scope=all`,
-    `${origin}/api/tickets?scope=all`,
-  ];
-  for (const u of urls) {
-    try {
-      const r = await fetch(u, { cache:"no-store" });
-      if (r.ok) return await r.json() as Ticket[];
-    } catch {}
-  }
-  return [];
-}
-
-async function computeUsers(origin:string, days:number) {
-  const list = await getTickets(origin);
+async function computeUsers(origin:string, days:number, cookie?:string|null) {
+  const headers: Record<string,string> = { "x-swa-bypass":"1" };
+  if (cookie) headers["cookie"] = cookie;
+  const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store", headers });
+  if (!r.ok) throw new Error(`tickets-fetch ${r.status}`);
+  const list = (await r.json()) as Ticket[];
   const cutoff = Date.now() - days*86400000;
   const map = new Map<string, number>();
   for (const t of list) {
@@ -51,10 +42,13 @@ async function computeUsers(origin:string, days:number) {
 }
 
 export async function GET(req: Request) {
+  try {
+    const upstream = await proxyToFunc(req, "/api/tickets/stats/users");
+    if (upstream.ok) return upstream;
+  } catch {}
   const url = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
-  const origin = url.origin;
-  const { array, full } = await computeUsers(origin, days);
+  const { array, full } = await computeUsers(url.origin, days, req.headers.get("cookie"));
   const shape = (url.searchParams.get("shape") ?? "").toLowerCase();
   const payload = (shape === "full" || shape === "1") ? full : array;
   return new Response(JSON.stringify(payload), {
