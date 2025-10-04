@@ -1,107 +1,165 @@
 ﻿"use client";
 import { useEffect, useRef, useState } from "react";
 
-type Msg = { id:string; role:"user"|"assistant"; content:string; ts:number };
+type Role = "user" | "assistant";
+type Msg = { id: string; role: Role; content: string; ts?: number };
 
-export default function AssistChatBubbles(){
+export default function AssistChat() {
   const [msgs, setMsgs] = useState<Msg[]>([]);
   const [text, setText] = useState("");
-  const [busy, setBusy] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [sending, setSending] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
 
-  // オートスクロール
-  useEffect(()=>{ scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [msgs.length, busy]);
+  useEffect(() => {
+    boxRef.current?.scrollTo({ top: boxRef.current.scrollHeight, behavior: "smooth" });
+  }, [msgs.length]);
 
-  async function onSubmit(e?:React.FormEvent){
-    e?.preventDefault();
+  async function onSubmit(e: React.FormEvent) {
+    e.preventDefault();
     const content = text.trim();
-    if (!content || busy) return;
+    if (!content) return;
 
-    // 送信 → クリア
-    const me: Msg = { id: crypto.randomUUID(), role:"user", content, ts: Date.now() };
-    setMsgs(prev => [...prev, me]);
-    setText(""); setBusy(true);
+    // 自分のメッセージを即描画
+    const mine: Msg = { id: crypto.randomUUID(), role: "user", content, ts: Date.now() };
+    setMsgs((m) => [...m, mine]);
+    setText("");
+    setSending(true);
 
-    try{
+    try {
       const res = await fetch("/api/assist", {
-        method:"POST",
-        headers:{ "content-type":"application/json" },
-        body: JSON.stringify({ messages:[{ role:"user", content }] })
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ messages: [{ role: "user", content }] }),
       });
-      const json = await res.json().catch(()=> ({} as any));
-      const reply = (json?.reply ?? json?.answer ?? "").toString().trim()
-        || "すみません、応答を取得できませんでした。";
-      const bot: Msg = { id: crypto.randomUUID(), role:"assistant", content: reply, ts: Date.now() };
-      setMsgs(prev => [...prev, bot]);
-    }catch(err:any){
-      const bot: Msg = { id: crypto.randomUUID(), role:"assistant",
-        content: `エラー: ${err?.message ?? "送信に失敗しました"}`, ts: Date.now() };
-      setMsgs(prev => [...prev, bot]);
-    }finally{ setBusy(false); }
-  }
-
-  function Bubble({m}:{m:Msg}){
-    const mine = m.role === "user";
-    return (
-      <div style={{ display:"flex", justifyContent: mine? "flex-end":"flex-start" }}>
-        <div style={{
-          maxWidth:"72%", padding:"10px 12px", borderRadius:14, lineHeight:1.5,
-          color: mine? "#fff":"#111827",
-          background: mine? "#2563eb":"#f3f4f6",
-          boxShadow:"0 1px 2px rgba(0,0,0,.05)",
-          whiteSpace:"pre-wrap", wordBreak:"break-word"
-        }}>
-          {m.content}
-        </div>
-      </div>
-    );
+      const data = await res.json().catch(() => ({}));
+      const replyText = String(data?.reply ?? data?.answer ?? "すみません、応答を取得できませんでした。");
+      const ai: Msg = { id: crypto.randomUUID(), role: "assistant", content: replyText, ts: Date.now() };
+      setMsgs((m) => [...m, ai]);
+    } catch (err: any) {
+      setMsgs((m) => [
+        ...m,
+        { id: crypto.randomUUID(), role: "assistant", content: `エラー: ${err?.message ?? "送信に失敗しました"}` },
+      ]);
+    } finally {
+      setSending(false);
+    }
   }
 
   return (
-    <section style={{ display:"grid", gap:12 }}>
-      <h2 style={{fontSize:16, fontWeight:800}}>AI 相談チャット（β）</h2>
-
-      <div ref={scrollRef} aria-live="polite"
-           style={{minHeight:180, maxHeight:320, overflow:"auto",
-                   border:"1px solid #e5e7eb", borderRadius:12, padding:12, background:"#fff"}}>
-        {msgs.length===0 && (
-          <div style={{ color:"#6b7280", fontSize:13 }}>こちらからサポートに相談できます。</div>
+    <div style={{ display: "grid", gap: 12 }}>
+      {/* メッセージエリア（LINE風 吹き出し） */}
+      <div
+        ref={boxRef}
+        style={{
+          minHeight: 200,
+          maxHeight: 340,
+          overflow: "auto",
+          background: "#f8fafc",
+          border: "1px solid #e5e7eb",
+          borderRadius: 12,
+          padding: 12,
+        }}
+      >
+        {msgs.length === 0 && (
+          <div style={{ color: "#6b7280", fontSize: 13 }}>こちらからサポートに相談できます。</div>
         )}
-        <div style={{display:"grid", gap:10}}>
-          {msgs.map(m => <Bubble key={m.id} m={m} />)}
-          {busy && (
-            <div style={{ display:"flex", justifyContent:"flex-start" }}>
-              <div style={{
-                padding:"8px 10px", borderRadius:14, background:"#f3f4f6",
-                color:"#111827", boxShadow:"0 1px 2px rgba(0,0,0,.05)"
-              }}>…</div>
+
+        {msgs.map((m) => (
+          <div
+            key={m.id}
+            style={{
+              display: "flex",
+              justifyContent: m.role === "user" ? "flex-end" : "flex-start",
+              margin: "8px 0",
+              gap: 6,
+            }}
+          >
+            {/* アバター（左: AI / 右: あなた） */}
+            {m.role === "assistant" && <div style={avatar("assistant")}>AI</div>}
+
+            {/* 吹き出し */}
+            <div style={bubble(m.role)}>
+              <div style={{ whiteSpace: "pre-wrap" }}>{m.content}</div>
+              {m.ts && (
+                <div
+                  style={{
+                    fontSize: 10,
+                    opacity: 0.6,
+                    marginTop: 4,
+                    textAlign: m.role === "user" ? "right" : "left",
+                  }}
+                >
+                  {new Date(m.ts).toLocaleTimeString()}
+                </div>
+              )}
             </div>
-          )}
-        </div>
+
+            {m.role === "user" && <div style={avatar("user")}>あなた</div>}
+          </div>
+        ))}
       </div>
 
-      <form onSubmit={onSubmit} style={{ display:"flex", gap:8 }}>
-        <textarea
+      {/* 入力エリア */}
+      <form onSubmit={onSubmit} style={{ display: "flex", gap: 8 }}>
+        <input
           value={text}
-          onChange={e=>setText(e.target.value)}
+          onChange={(e) => setText(e.target.value)}
           placeholder="質問を入力（Enterで送信 / Shift+Enterで改行）"
-          disabled={busy}
-          onKeyDown={e=>{
-            if (e.key==="Enter" && !e.shiftKey){
-              e.preventDefault(); (e.currentTarget.form as HTMLFormElement|undefined)?.requestSubmit();
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              (e.currentTarget.form as HTMLFormElement | null)?.requestSubmit();
             }
           }}
-          style={{
-            flex:1, border:"1px solid #e5e7eb", borderRadius:10, padding:"8px 10px",
-            minHeight:44, resize:"vertical"
-          }}
+          disabled={sending}
+          style={{ flex: 1, padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: 10 }}
         />
-        <button type="submit" disabled={busy || !text.trim()}
-          style={{ padding:"10px 14px", background:"#111827", color:"#fff",
-                   border:"none", borderRadius:10, cursor:"pointer", opacity:(busy||!text.trim())?.5:1 }}>
-          {busy? "送信中…" : "送信"}
+        <button
+          type="submit"
+          disabled={sending || text.trim() === ""}
+          style={{
+            background: "#2563eb",
+            color: "#fff",
+            border: "none",
+            borderRadius: 10,
+            padding: "10px 14px",
+          }}
+        >
+          {sending ? "送信中…" : "送信"}
         </button>
       </form>
-    </section>
+    </div>
   );
+}
+
+function bubble(role: Role): React.CSSProperties {
+  const isUser = role === "user";
+  return {
+    maxWidth: "75%",
+    background: isUser ? "#2563eb" : "#fff",
+    color: isUser ? "#fff" : "#111827",
+    border: isUser ? "1px solid #1d4ed8" : "1px solid #e5e7eb",
+    padding: "10px 12px",
+    borderRadius: isUser ? "14px 14px 2px 14px" : "14px 14px 14px 2px",
+    boxShadow: "0 1px 2px rgba(0,0,0,.06)",
+    wordBreak: "break-word",
+  };
+}
+
+function avatar(role: Role): React.CSSProperties {
+  const isUser = role === "user";
+  return {
+    alignSelf: "flex-end",
+    fontSize: 11,
+    color: "#fff",
+    background: isUser ? "#6366f1" : "#0ea5e9",
+    borderRadius: "50%",
+    width: 28,
+    height: 28,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: isUser ? "0 0 0 6px" : "0 6px 0 0",
+    flex: "0 0 28px",
+  };
 }
