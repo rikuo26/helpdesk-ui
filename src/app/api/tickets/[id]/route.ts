@@ -1,12 +1,13 @@
 ﻿export const runtime = "nodejs";
 import { proxyToFunc } from "@/app/api/_proxy";
 
-type ParamsP = Promise<{ id: string }>;
+type Ctx = { params: Promise<{ id: string }> };
 const JSONH = { "content-type": "application/json; charset=utf-8" };
+
 type Ticket = { id: number | string; [k: string]: any };
 
-// --- GET: 上流に無ければ一覧から拾う
-export async function GET(req: Request, ctx: { params: ParamsP }) {
+// --- GET（保持：上流→ダメなら一覧から抽出）
+export async function GET(req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   try {
     const upstream = await proxyToFunc(req, `/api/tickets/${encodeURIComponent(id)}`);
@@ -18,44 +19,51 @@ export async function GET(req: Request, ctx: { params: ParamsP }) {
     const hit = (Array.isArray(list) ? list : []).find(t => String(t.id) === String(id)) ?? null;
     if (hit) return new Response(JSON.stringify(hit), { status: 200, headers: JSONH });
     return new Response(JSON.stringify({ error: "not_found" }), { status: 404, headers: JSONH });
-  } catch (e: any) {
+  } catch (e:any) {
     return new Response(JSON.stringify({ error: e?.message ?? "failed" }), { status: 500, headers: JSONH });
   }
 }
 
-// --- PATCH: そのまま上流へ
-export async function PATCH(req: Request, ctx: { params: ParamsP }) {
+// --- PATCH（保持：そのまま上流へ）
+export async function PATCH(req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
   return proxyToFunc(req, `/api/tickets/${encodeURIComponent(id)}`);
 }
 
-// --- DELETE: まず上流 DELETE、ダメなら proxy-tickets に PATCH でソフト削除
-export async function DELETE(req: Request, ctx: { params: ParamsP }) {
+// --- DELETE：3段フォールバック＋デバッグヘッダー
+export async function DELETE(req: Request, ctx: Ctx) {
   const { id } = await ctx.params;
-  if (!id) return new Response(JSON.stringify({ error: "id_required" }), { status: 400, headers: JSONH });
+  const dbg:any = { id:String(id) };
 
-  // 1) 本物の DELETE（上流にあればそのまま成功）
+  // A) 本物の DELETE
   try {
     const del = await proxyToFunc(req, `/api/tickets/${encodeURIComponent(id)}`);
-    if (del.ok || del.status === 204) return del;
-  } catch {}
+    dbg.A = del.status;
+    if (del.ok || del.status === 204) {
+      return new Response(null, { status: 204, headers: { "x-debug-delete": JSON.stringify(dbg).slice(0,200) }});
+    }
+  } catch (e:any) { dbg.A = `ERR:${e?.message ?? e}`; }
 
-  // 2) フォールバック: Next の proxy ルート経由で PATCH（status/deleted を両方付与）
+  // B) PATCH { status:"deleted" }
   try {
-    const origin = new URL(req.url).origin;
-    const soft = await fetch(`${origin}/api/proxy-tickets/${encodeURIComponent(id)}`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ status: "deleted", deleted: true }),
-      cache: "no-store",
-    });
-    if (soft.ok || soft.status === 204) return new Response(null, { status: 204 });
+    const headers = new Headers(req.headers); headers.set("content-type","application/json");
+    const softReq = new Request(req.url, { method:"PATCH", headers, body: JSON.stringify({ status: "deleted" }) });
+    const r = await proxyToFunc(softReq, `/api/tickets/${encodeURIComponent(id)}`);
+    dbg.B = r.status;
+    if (r.ok) {
+      return new Response(null, { status: 204, headers: { "x-debug-delete": JSON.stringify(dbg).slice(0,200) }});
+    }
+  } catch (e:any) { dbg.B = `ERR:${e?.message ?? e}`; }
 
-    const body = await soft.text().catch(() => "");
-    return new Response(body || JSON.stringify({ error: "delete_failed_upstream" }),
-      { status: soft.status || 500, headers: JSONH });
-  } catch (e: any) {
-    return new Response(JSON.stringify({ error: e?.message ?? "delete_failed" }),
-      { status: 500, headers: JSONH });
-  }
+  // C) POST（保存API流用）{ id, status:"deleted" }
+  try {
+    const postReq = new Request(req.url, { method:"POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ id, status: "deleted" }) });
+    const r = await proxyToFunc(postReq, `/api/tickets`);
+    dbg.C = r.status;
+    if (r.ok) {
+      return new Response(null, { status: 204, headers: { "x-debug-delete": JSON.stringify(dbg).slice(0,200) }});
+    }
+  } catch (e:any) { dbg.C = `ERR:${e?.message ?? e}`; }
+
+  return new Response(JSON.stringify({ error: "delete_failed", debug: dbg }), { status: 500, headers: JSONH });
 }
