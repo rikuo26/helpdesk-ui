@@ -4,7 +4,7 @@ import { proxyToFunc } from "@/app/api/_proxy";
 type Ticket = { id:number; createdAt:any; createdBy?:string|null; status?:string|null };
 const toInt = (v:any, d:number)=>{ const n = Number(v); return Number.isFinite(n)?n:d; };
 
-// どんな文字列/数値でも Date にして、失敗したら null
+// どんな文字列/数値でも Date にして、失敗なら null
 function parseDate(src:any): Date | null {
   if (!src) return null;
   if (src instanceof Date) return Number.isFinite(+src) ? src : null;
@@ -21,19 +21,41 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
-// NaN を 0 に
 const n0 = (v:any)=> Number.isFinite(+v) ? +v : 0;
 
-async function computeAll(origin:string, days:number, cookie?:string|null){
-  const headers: Record<string,string> = { "x-swa-bypass":"1" }; // 自己再帰回避フラグ
-  if (cookie) headers["cookie"] = cookie;                         // 認可維持のため Cookie を中継
-  const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store", headers });
-  if (!r.ok) {
-    const body = await r.text().catch(()=> "");
-    throw new Error(`tickets-fetch ${r.status} ${r.statusText} ${body.slice(0,200)}`);
-  }
-  const list = (await r.json()) as Ticket[];
+// 認可維持 & 自己再帰回避してチケットを取得。all→(401/403/空)なら mine にフォールバック
+async function loadTickets(origin:string, cookie?:string|null): Promise<Ticket[]> {
+  const baseHeaders: Record<string,string> = { "x-swa-bypass":"1" };
+  if (cookie) baseHeaders["cookie"] = cookie;
 
+  async function fetchScope(scope:"all"|"mine") {
+    const r = await fetch(`${origin}/api/tickets?scope=${scope}`, { cache:"no-store", headers: baseHeaders });
+    return r;
+  }
+
+  let resp = await fetchScope("all");
+  if (resp.status === 401 || resp.status === 403) {
+    resp = await fetchScope("mine");
+  }
+  let list: Ticket[] = [];
+  if (resp.ok) {
+    list = await resp.json() as Ticket[];
+    // 「200 かつ 空配列」でも mine を試してみる（権限で all が空になる環境向け）
+    if (!Array.isArray(list) || list.length === 0) {
+      const r2 = await fetchScope("mine");
+      if (r2.ok) {
+        const alt = await r2.json() as Ticket[];
+        if (Array.isArray(alt) && alt.length > 0) list = alt;
+      }
+    }
+  } else {
+    const body = await resp.text().catch(()=> "");
+    throw new Error(`tickets-fetch ${resp.status} ${resp.statusText} ${body.slice(0,200)}`);
+  }
+  return Array.isArray(list) ? list : [];
+}
+
+function summarize(list: Ticket[], days:number){
   const total = list.length;
   const todayUTC = new Date(); todayUTC.setUTCHours(0,0,0,0);
   const todayKey = todayUTC.toISOString().slice(0,10);
@@ -116,9 +138,7 @@ async function computeAll(origin:string, days:number, cookie?:string|null){
     statusCounts: { open, in_progress, done, unresolved },
 
     daily: { labels, items: labels.map(k => ({ date: k, count: n0(counts[k]) })), series: dailySeries, data: dailySeries },
-
-    weekday: { labels: weekdayLabels, series: weekdayCounts, data: weekdayCounts },
-
+    weekday: { labels: ["日","月","火","水","木","金","土"], series: weekdayCounts, data: weekdayCounts },
     users,
     usersChart: { labels: users.map(u => u.name), series: users.map(u => n0(u.count)), data: users.map(u => n0(u.count)) }
   };
@@ -132,11 +152,12 @@ export async function GET(req: Request) {
     const upstream = await proxyToFunc(req, "/api/tickets/stats");
     if (upstream.ok) return upstream;
   } catch {}
-  // 2) Next 側集計（Cookie を転送）
+  // 2) Next 側集計（all→mine フォールバック）
   const url = new URL(req.url);
   const days = toInt(url.searchParams.get("days"), 14);
   try {
-    const result = await computeAll(url.origin, days, req.headers.get("cookie"));
+    const list = await loadTickets(url.origin, req.headers.get("cookie"));
+    const result = summarize(list, days);
     return new Response(JSON.stringify(result), {
       status: 200,
       headers: { "content-type":"application/json; charset=utf-8" }

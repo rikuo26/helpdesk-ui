@@ -20,12 +20,30 @@ function parseDate(src:any): Date | null {
   return null;
 }
 
-async function computeUsers(origin:string, days:number, cookie?:string|null) {
+async function loadTickets(origin:string, cookie?:string|null){
   const headers: Record<string,string> = { "x-swa-bypass":"1" };
   if (cookie) headers["cookie"] = cookie;
-  const r = await fetch(`${origin}/api/tickets?scope=all`, { cache:"no-store", headers });
-  if (!r.ok) throw new Error(`tickets-fetch ${r.status}`);
-  const list = (await r.json()) as Ticket[];
+  async function get(scope:"all"|"mine"){ return fetch(`${origin}/api/tickets?scope=${scope}`, { cache:"no-store", headers }); }
+  let r = await get("all");
+  if (r.status === 401 || r.status === 403) r = await get("mine");
+  let list: Ticket[] = [];
+  if (r.ok) {
+    list = await r.json() as Ticket[];
+    if (!Array.isArray(list) || list.length === 0) {
+      const r2 = await get("mine");
+      if (r2.ok) {
+        const alt = await r2.json() as Ticket[];
+        if (Array.isArray(alt) && alt.length > 0) list = alt;
+      }
+    }
+  } else {
+    throw new Error(`tickets-fetch ${r.status}`);
+  }
+  return list;
+}
+
+async function computeUsers(origin:string, days:number, cookie?:string|null) {
+  const list = await loadTickets(origin, cookie);
   const cutoff = Date.now() - days*86400000;
   const map = new Map<string, number>();
   for (const t of list) {
