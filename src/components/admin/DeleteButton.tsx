@@ -7,7 +7,11 @@ export default function DeleteButton({ id }: { id: string | number }) {
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
     try {
-      const res = await fetch(`/api/tickets/${encodeURIComponent(String(id))}`, { method: "DELETE" });
+      const res = await fetch(`/api/proxy-tickets/${encodeURIComponent(String(id))}`, {
+        method: "PATCH",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ status: "deleted" }),
+      });
       if (!res.ok && res.status !== 204) {
         const text = await res.text().catch(() => "");
         throw new Error(text || `${res.status} ${res.statusText}`);
