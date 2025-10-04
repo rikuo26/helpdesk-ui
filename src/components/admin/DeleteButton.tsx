@@ -1,6 +1,5 @@
 ﻿"use client";
 import { useRouter } from "next/navigation";
-import { deleteTicket } from "@/lib/api";
 
 export default function DeleteButton({ id }: { id: string | number }) {
   const router = useRouter();
@@ -8,8 +7,11 @@ export default function DeleteButton({ id }: { id: string | number }) {
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
     try {
-      // /api/tickets/:id に DELETE → ルート側で PATCH(status: "deleted") に変換される
-      await deleteTicket(String(id));
+      const res = await fetch(`/api/tickets/${encodeURIComponent(String(id))}`, { method: "DELETE" });
+      if (!res.ok && res.status !== 204) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || `${res.status} ${res.statusText}`);
+      }
       alert("削除しました。");
       router.push("/admin/tickets");
       router.refresh();
