@@ -1,12 +1,16 @@
 ﻿export const runtime = "nodejs";
 import { proxyToFunc } from "@/app/api/_proxy";
 
-type Ctx = { params: { id: string } };
+type Ctx = { params: Promise<{ id: string }> };
 const path = (id: string) => `/api/tickets/${encodeURIComponent(id)}`;
 
-// 必要な HTTP メソッドをすべて上流にそのまま委譲
-export async function GET   (req: Request, { params }: Ctx) { return proxyToFunc(req, path(params.id)); }
-export async function PATCH (req: Request, { params }: Ctx) { return proxyToFunc(req, path(params.id)); }
-export async function DELETE(req: Request, { params }: Ctx) { return proxyToFunc(req, path(params.id)); }
-export async function PUT   (req: Request, { params }: Ctx) { return proxyToFunc(req, path(params.id)); }
-export async function POST  (req: Request, { params }: Ctx) { return proxyToFunc(req, path(params.id)); }
+async function pass(req: Request, params: Ctx["params"]) {
+  const { id } = await params;
+  return proxyToFunc(req, path(id));
+}
+
+export async function GET   (req: Request, ctx: Ctx) { return pass(req, ctx.params); }
+export async function PATCH (req: Request, ctx: Ctx) { return pass(req, ctx.params); }
+export async function DELETE(req: Request, ctx: Ctx) { return pass(req, ctx.params); }
+export async function PUT   (req: Request, ctx: Ctx) { return pass(req, ctx.params); }
+export async function POST  (req: Request, ctx: Ctx) { return pass(req, ctx.params); }
