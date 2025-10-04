@@ -1,6 +1,7 @@
 ﻿export const runtime = "nodejs";
 import { proxyToFunc } from "@/app/api/_proxy";
 
+// Next 15: params は Promise<{ id: string }>
 type Ctx = { params: Promise<{ id: string }> };
 const path = (id: string) => `/api/tickets/${encodeURIComponent(id)}`;
 
