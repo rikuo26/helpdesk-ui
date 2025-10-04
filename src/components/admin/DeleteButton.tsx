@@ -1,6 +1,6 @@
 ﻿"use client";
 import { useRouter } from "next/navigation";
-import { deleteTicket } from "@/lib/api"; // 既存の lib/api エクスポートを利用
+import { deleteTicket } from "@/lib/api";
 
 export default function DeleteButton({ id }: { id: string | number }) {
   const router = useRouter();
@@ -8,7 +8,8 @@ export default function DeleteButton({ id }: { id: string | number }) {
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
     try {
-      await deleteTicket(id);
+      // deleteTicket は string 想定。ここで統一して渡す
+      await deleteTicket(String(id));
       alert("削除しました。");
       router.push("/admin/tickets");
       router.refresh();
