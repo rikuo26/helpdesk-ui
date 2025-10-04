@@ -1,6 +1,5 @@
 ﻿"use client";
 import { useRouter } from "next/navigation";
-import { deleteTicket } from "@/lib/api";
 
 export default function DeleteButton({ id }: { id: string | number }) {
   const router = useRouter();
@@ -8,7 +7,21 @@ export default function DeleteButton({ id }: { id: string | number }) {
   async function onDelete() {
     if (!confirm(`チケット #${id} を削除します。よろしいですか？`)) return;
     try {
-      await deleteTicket(String(id));        // ← string で統一
+      const idStr = encodeURIComponent(String(id));
+
+      // 1) まず REST の DELETE を試す
+      let res = await fetch(`/api/tickets/${idStr}`, { method: "DELETE" });
+
+      // 2) ダメならフォールバック（POST /api/tickets/delete?id=...）
+      if (!res.ok) {
+        res = await fetch(`/api/tickets/delete?id=${idStr}`, { method: "POST" });
+      }
+
+      if (!res.ok) {
+        const text = await res.text().catch(() => "");
+        throw new Error(text || `${res.status} ${res.statusText}`);
+      }
+
       alert("削除しました。");
       router.push("/admin/tickets");
       router.refresh();
@@ -20,10 +33,7 @@ export default function DeleteButton({ id }: { id: string | number }) {
   return (
     <button
       onClick={onDelete}
-      style={{
-        background: "#dc2626", color: "#fff", padding: "8px 12px",
-        borderRadius: 8, border: "none", cursor: "pointer"
-      }}
+      style={{ background:"#dc2626", color:"#fff", padding:"8px 12px", borderRadius:8, border:"none", cursor:"pointer" }}
       title="このチケットを削除"
     >
       削除
