@@ -1,0 +1,19 @@
+{
+  "name": "helpdesk-ui-dev",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  "features": {
+    "ghcr.io/devcontainers/features/azure-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.vscode-node-azure-pack",
+        "ms-azuretools.vscode-azurestaticwebapps",
+        "ms-vscode-remote.remote-containers",
+        "ms-vscode.powershell"
+      ]
+    }
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}
